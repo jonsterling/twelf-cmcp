@@ -1,0 +1,35 @@
+ctx : type.
+%name ctx G.
+
+% open terms
+otm : ctx -> type.
+
+ctx/nil : ctx.
+%abbrev · = ctx/nil.
+
+ctx/snoc : {G:ctx} otm G -> ctx.
+%abbrev , = ctx/snoc. %infix left 9 ,.
+
+env : ctx -> type.
+%name env R.
+env/nil : env ·.
+%abbrev <·> = env/nil.
+
+env/snoc : env (G , A)
+            <- otm G
+            <- env G.
+%abbrev <,> = env/snoc. %infix left 9 <,>.
+
+! : tm -> otm ·. %prefix 10 !.
+@ : (tm -> otm G) -> otm (G , A). %prefix 10 @.
+
+subst : env G -> otm G -> tm -> type.
+%mode subst +R +O -E.
+
+subst/· : subst <·> (! E) E.
+subst/, : subst ((R : env G) <,> M) (@ E) E'
+           <- subst R M M'
+           <- subst R (E M') E'.
+
+%worlds () (subst _ _ _).
+%total R (subst R _ _).

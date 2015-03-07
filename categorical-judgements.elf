@@ -1,0 +1,68 @@
+=> : tm -> val -> type. %infix right 9 =>.
+%mode => +E -M.
+
+=>/↑ : ↑ M => M.
+=>/ap : ap (↑ lam E) N => E·N
+         <- E N => E·N.
+=>/fst : fst ↑ pair E1 E2 => M
+          <- E1 => M.
+=>/snd : snd ↑ pair E1 E2 => N
+          <- E2 => N.
+
+%block tm-b : block {x:tm}.
+
+can-type : val -> type. %postfix 10 can-type.
+%mode can-type +A.
+
+is-type : tm -> type. %postfix 10 is-type.
+%mode is-type +A.
+
+can-eq-type : val -> val -> type.
+%mode can-eq-type +A +B.
+
+eq-type : tm -> tm -> type.
+%mode eq-type +A +B.
+
+can-mem : val -> val -> type.
+%mode can-mem +M +A.
+
+mem : tm -> tm -> type.
+%mode mem +M +A.
+
+can-eq-mem : val -> val -> val -> type.
+%mode can-eq-mem +M +N +A.
+
+eq-mem : tm -> tm -> tm -> type.
+%mode eq-mem +M +N +A.
+
+%block mem-b : some {A} block {x} {_ : mem x A}.
+%block eq-mem-b : some {A} block {x} {y} {_ : eq-mem x y A}.
+
+type-family : tm -> (tm -> tm) -> type.
+%mode type-family +A +B.
+
+type-family/def : type-family A B
+                   <- ({x} {y} eq-mem x y A -> eq-type (B x) (B y))
+                   <- {x} mem x A -> B x is-type.
+
+is-type/def : A is-type
+               <- A => A'
+               <- A' can-type.
+
+eq-type/def : eq-type A B
+               <- B => B'
+               <- A => A'
+               <- can-eq-type A' B'.
+
+mem/def : mem M A
+           <- M => M'
+           <- A => A'
+           <- can-mem M' A'.
+
+can-type/pi : pi A B can-type
+               <- A is-type
+               <- type-family A B.
+can-type/unit : unit can-type.
+can-eq-type/unit : can-eq-type unit unit.
+
+%worlds (mem-b | eq-mem-b) (type-family _ _) (is-type _) (can-type _) (eq-type _ _) (can-eq-type _ _) (=> _ _).

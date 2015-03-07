@@ -1,0 +1,67 @@
+% codes for judgements in a sequent
+judgement : ctx -> type.
+
+judgement/type : otm G -> judgement G.
+%abbrev `type = judgement/type. %postfix 9 `type.
+
+judgement/eq-type : otm G -> otm G -> judgement G.
+%abbrev `eq-type = judgement/eq-type.
+
+judgement/mem : otm G -> otm G -> judgement G.
+%abbrev `∈ = judgement/mem. %infix right 9 `∈.
+
+judgement/eq-mem : otm G -> otm G -> otm G -> judgement G.
+%abbrev `eq-mem = judgement/eq-mem.
+
+% closed terms may be weakened
+weaken : {G:ctx} tm -> otm G -> type.
+%abbrev wk = weaken G.
+%mode weaken +G +M -O.
+weaken/· : weaken · M (! M).
+weaken/, : weaken (G , A) M (@ [x] M')
+            <- weaken G M M'.
+%worlds () (weaken _ _ _).
+%total G (weaken G _ _).
+
+>> : {G:ctx} judgement G -> type. %infix left 7 >>.
+>>/type/· : · >> ! A `type
+             <- A is-type.
+>>/type/, : G , B >> @ A `type
+             <- ({x} {x'} wk x x'
+                   -> {y} {y'} wk y y'
+                   -> G >> `eq-mem x' y' B
+                   -> G >> `eq-type (A x) (A y))
+             <- {x} {x'} wk x x'
+                -> G >> x' `∈ B
+                -> G >> A x `type.
+>>/eq-type/· : · >> `eq-type (! A) (! B)
+                <- eq-type A B.
+>>/eq-type/, : G , C >> `eq-type (@ A) (@ B)
+                <- ({x} {x'} wk x x'
+                      -> {y} {y'} wk y y'
+                      -> G >> `eq-mem x' y' C
+                      -> G >> `eq-type (A x) (B y))
+                <- {x} {x'} wk x x'
+                   -> G >> x' `∈ C
+                   -> G >> `eq-type (A x) (B x).
+>>/mem/· : · >> ! M `∈ ! A
+            <- mem M A.
+>>/mem/, : G , B >> @ M `∈ @ A
+            <- ({x} {x'} wk x x'
+                  -> {y} {y'} wk y y'
+                  -> G >> `eq-mem x' y' B
+                  -> G >> `eq-mem (M x) (M y) (A x))
+            <- {x} {x'} wk x x'
+               -> G >> x' `∈ B
+               -> G >> M x `∈ A x.
+>>/eq-mem/, : G , B >> `eq-mem (@ M) (@ N) (@ A)
+               <- ({x} {x'} wk x x'
+                     -> {y} {y'} wk y y'
+                     -> G >> `eq-mem x' y' B
+                     -> G >> `eq-mem (M x) (N y) (A x))
+               <- {x} {x'} wk x x'
+                  -> G >> x' `∈ B
+                  -> G >> `eq-mem (M x) (N x) (A x).
+
+%solve - : · , ! ↑ unit >> (@ [_] ! ↑ unit) `type.
+%solve - : (· , ! ↑ unit , @ [x] ! ↑ unit) >> (@ [x] @ [y] ! ↑ unit) `type.
