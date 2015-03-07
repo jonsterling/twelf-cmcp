@@ -1,5 +1,4 @@
-=> : tm -> val -> type. %infix right 9 =>.
-%mode => +E -M.
+=> : tm -> val -> type. %infix right 9 =>. %mode => +E -M.
 
 =>/↑ : ↑ M => M.
 =>/ap : ap (↑ lam E) N => E·N
@@ -35,6 +34,8 @@ can-eq-mem : val -> val -> val -> type.
 eq-mem : tm -> tm -> tm -> type.
 %mode eq-mem +M +N +A.
 
+%block can-mem-b : some {A} block {x} {_ : can-mem x A}.
+%block can-eq-mem-b : some {A} block {x} {y} {_ : can-eq-mem x y A}.
 %block mem-b : some {A} block {x} {_ : mem x A}.
 %block eq-mem-b : some {A} block {x} {y} {_ : eq-mem x y A}.
 
@@ -52,31 +53,22 @@ mem/def : mem M A
            <- A => A'
            <- can-mem M' A'.
 
+can-eq-type/def : can-eq-type A B
+                   <- ({x} {y} can-eq-mem x y B -> can-eq-mem x y A)
+                   <- ({x} {y} can-eq-mem x y A -> can-eq-mem x y B)
+                   <- ({x} can-mem x B -> can-mem x A)
+                   <- ({x} can-mem x A -> can-mem x B).
+
 can-type/void : void can-type.
-can-eq-type/void : can-eq-type void void.
-
 can-type/unit : unit can-type.
-can-eq-type/unit : can-eq-type unit unit.
-
 can-type/pi : pi A B can-type
                <- A is-type
                <- ({x} {y} eq-mem x y A -> eq-type (B x) (B y))
                <- ({x} mem x A -> B x is-type).
-
-can-eq-type/pi : can-eq-type (pi A B) (pi A' B')
-                  <- ({x} {y} eq-mem x y A -> eq-type (B x) (B' y))
-                  <- ({x} mem x A -> eq-type (B x) (B' x))
-                  <- eq-type A A'.
-
 can-type/sg : sg A B can-type
                <- A is-type
                <- ({x} {y} eq-mem x y A -> eq-type (B x) (B y))
                <- ({x} mem x A -> B x is-type).
-
-can-eq-type/sg : can-eq-type (sg A B) (sg A' B')
-                  <- ({x} {y} eq-mem x y A -> eq-type (B x) (B' y))
-                  <- ({x} mem x A -> eq-type (B x) (B' x))
-                  <- eq-type A A'.
 
 can-mem/ax : can-mem ax unit.
 can-eq-mem/ax : can-eq-mem ax ax unit.
@@ -95,4 +87,4 @@ can-eq-mem/pair : can-eq-mem (pair M N) (pair M' N') (sg A B)
                    <- eq-mem N N' (B M)
                    <- eq-mem M M' A.
 
-%worlds (mem-b | eq-mem-b) (is-type _) (can-type _) (eq-type _ _) (can-eq-type _ _) (=> _ _).
+%worlds (mem-b | eq-mem-b | can-mem-b | can-eq-mem-b) (is-type _) (can-type _) (eq-type _ _) (can-eq-type _ _) (mem _ _) (can-mem _ _) (eq-mem _ _ _) (can-eq-mem _ _ _) (=> _ _).
