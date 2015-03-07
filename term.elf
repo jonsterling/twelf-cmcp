@@ -1,17 +1,10 @@
-level : type.
-level/z : level.
-level/s : level -> level.
-
-%abbrev z = level/z.
-%abbrev s = level/s. %prefix 10 s.
-
 val : type.
 %name val M.
 
 tm : type.
 %name tm E.
 
-set : level -> val.
+void : val.
 unit : val.
 ax : val.
 pi : tm -> (tm -> tm) -> val.
