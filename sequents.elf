@@ -48,18 +48,25 @@ weaken/, : weaken (G , A) M (@ [x] M')
 %worlds () (weaken _ _ _).
 %total G (weaken G _ _).
 
+% interpret judgement codes in the empty context to their primitive meanings.
+□ : judgement · -> type. %prefix 8 □.
+%mode □ +J.
+
+□/type : □ ! A `type
+          <- A is-type.
+□/eq-type : □ `eq-type (! A) (! B)
+             <- eq-type A B.
+□/mem : □ ! M `∈ ! A
+         <- mem M A.
+□/eq-mem : □ `eq-mem (! M) (! N) (! A)
+         <- eq-mem M N A.
+
+% interpret judgement codes in an open context functionally.
 >> : {G:ctx} judgement G -> type. %infix left 7 >>.
 %mode >> +G +J.
 
->>/·/type : · >> ! A `type
-             <- A is-type.
->>/·/eq-type : · >> `eq-type (! A) (! B)
-                <- eq-type A B.
->>/·/mem : · >> ! M `∈ ! A
-            <- mem M A.
->>/·/eq-mem : · >> `eq-mem (! M) (! N) (! A)
-               <- eq-mem M N A.
-
+>>/· : · >> J
+        <- □ J.
 >>/, : G , A >> J
         <- stretch J J=
         <- apply J J'
