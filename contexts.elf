@@ -12,3 +12,13 @@ ctx/snoc : {G:ctx} otm G -> ctx.
 
 ! : tm -> otm ·. %prefix 10 !.
 @ : (tm -> otm G) -> otm (G , A). %prefix 10 @.
+
+% closed terms may be weakened
+weaken : {G:ctx} tm -> otm G -> type.
+%abbrev wk = weaken G.
+%mode weaken +G +M -O.
+weaken/· : weaken · M (! M).
+weaken/, : weaken (G , A) M (@ [x] M')
+            <- weaken G M M'.
+%worlds () (weaken _ _ _).
+%total G (weaken G _ _).

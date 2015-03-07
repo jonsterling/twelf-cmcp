@@ -1,0 +1,23 @@
+% applies an open judgement to a term
+apply : judgement (G , C) -> (tm -> judgement G) -> type.
+%mode apply +J -J'.
+
+apply/type : apply (@ A `type) ([x] A x `type).
+apply/eq-type : apply (`eq-type (@ A) (@ B)) ([x] `eq-type (A x) (A x)).
+apply/mem : apply (@ M `∈ @ A) ([x] (M x) `∈ (A x)).
+apply/eq-mem : apply (`eq-mem (@ M) (@ N) (@ A)) ([x] `eq-mem (M x) (N x) (A x)).
+
+%worlds () (apply _ _).
+%total J (apply J _).
+
+% "stretches" an open judgement functionally across an interval
+stretch : judgement (G , C) -> (tm -> tm -> judgement G) -> type.
+%mode stretch +J -J=.
+
+stretch/type : stretch (@ A `type) ([x] [y] `eq-type (A x) (A y)).
+stretch/eq-type : stretch (`eq-type (@ A) (@ B)) ([x] [y] `eq-type (A x) (B y)).
+stretch/mem : stretch (@ M `∈ @ A) ([x] [y] `eq-mem (M x) (M y) (A x)).
+stretch/eq-mem : stretch (`eq-mem (@ M) (@ N) (@ A)) ([x] [y] `eq-mem (M x) (N y) (A x)).
+
+%worlds () (stretch _ _).
+%total J (stretch J _).

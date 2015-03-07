@@ -1,0 +1,14 @@
+% codes for judgements in a sequent
+judgement : ctx -> type.
+
+judgement/type : otm G -> judgement G.
+%abbrev `type = judgement/type. %postfix 9 `type.
+
+judgement/eq-type : otm G -> otm G -> judgement G.
+%abbrev `eq-type = judgement/eq-type.
+
+judgement/mem : otm G -> otm G -> judgement G.
+%abbrev `∈ = judgement/mem. %infix right 9 `∈.
+
+judgement/eq-mem : otm G -> otm G -> otm G -> judgement G.
+%abbrev `eq-mem = judgement/eq-mem.
