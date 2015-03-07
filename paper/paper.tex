@@ -1,0 +1,559 @@
+\documentclass[acmtoplas]{acmtrans2m}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{proof}
+\usepackage{twelf}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+\usepackage{code}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newdef{definition}[theorem]{Definition}
+\newdef{remark}[theorem]{Remark}
+\def\permission{}
+
+\def\InputModeColorName{MidnightBlue}
+\def\OutputModeColorName{Maroon}
+\newcommand\InputMode[1]{{\color{\InputModeColorName}{#1}}}
+\newcommand\OutputMode[1]{{\color{\OutputModeColorName}{#1}}}
+
+\newcommand\naturals{\mathbb{N}}
+\newcommand\type{\mathbf{type}}
+\newcommand\tyvoid{\mathsf{void}}
+\newcommand\tyunit{\mathsf{unit}}
+\newcommand\ax{\mathsf{ax}}
+\newcommand\ap{\mathsf{ap}}
+\newcommand\sortval{\mathsf{val}}
+\newcommand\sortexp{\mathsf{exp}}
+\newcommand\sortctx{\mathsf{ctx}}
+\newcommand\sorttele{\mathsf{tele}}
+\newcommand\sortoexp[1]{[#1]\sortexp}
+\newcommand\eval[2]{\InputMode{#1}\mathbin{\Rightarrow}\OutputMode{#2}}
+\newcommand\thunk[1]{{\color{Gray}\uparrow}#1}
+\newcommand\evalrule[1]{\Rightarrow_{#1}}
+\newcommand\nobind[1]{{\color{Gray}!}#1}
+\newcommand\bind[2]{{\color{Gray}@}[#1]#2}
+
+\newcommand\isset[1]{\InputMode{#1}\;\mathit{set}}
+\newcommand\eqset[2]{\InputMode{#1}=\InputMode{#2}\;\mathit{set}}
+\newcommand\mem[2]{\InputMode{#1}\in\InputMode{#2}}
+\newcommand\eqmem[3]{\InputMode{#1}=\InputMode{#2}\in\InputMode{#3}}
+
+\newcommand\canset[1]{\InputMode{#1}\;\mathit{set}_\mathsf{v}}
+\newcommand\eqcanset[2]{\InputMode{#1}=\InputMode{#2}\;\mathit{set}_\mathsf{v}}
+\newcommand\canmem[2]{\InputMode{#1}\in_\mathsf{v}\InputMode{#2}}
+\newcommand\eqcanmem[3]{\InputMode{#1}=\InputMode{#2}\in_\mathsf{v}\InputMode{#3}}
+\newcommand\lfpi[2]{{\color{Gray}\forall\{#1\}}.\;#2}
+
+\DeclareMathOperator{\typi}{\mathsf{pi}}
+\DeclareMathOperator{\tysg}{\mathsf{sg}}
+\DeclareMathOperator{\lam}{\mathsf{\lambda}}
+\DeclareMathOperator{\pair}{\mathsf{pair}}
+\DeclareMathOperator{\fst}{\mathsf{fst}}
+\DeclareMathOperator{\snd}{\mathsf{snd}}
+
+%% Krary Stuff
+\DeclareMathOperator\isvarop{\mathsf{isvar}}
+\DeclareMathOperator\boundedop{\mathsf{bounded}}
+\DeclareMathOperator\orderedop{\mathsf{ordered}}
+\DeclareMathOperator\precedesop{\mathsf{precedes}}
+
+\newcommand\isvar[2]{\isvarop(\InputMode{#1};\OutputMode{#2})}
+\newcommand\bounded[2]{\boundedop(\InputMode{#1};\InputMode{#2})}
+\newcommand\ordered[1]{\orderedop(\InputMode{#1})}
+\newcommand\precedes[2]{\precedesop(\InputMode{#1};\InputMode{#2})}
+\newcommand\boundedrule[1]{\mathsf{bounded}_{#1}}
+\newcommand\orderedrule[1]{\mathsf{ordered}_{#1}}
+\newcommand\lessthan[2]{\InputMode{#1}<\InputMode{#2}}
+
+\title{A Higher-Order Approach to Explicit Contexts in LF}
+
+\author{JONATHAN M.\ STERLING}
+
+\begin{abstract}
+  There are two standard techniques for representing dependently typed calculi
+  in the LF. The first is to re-use the LF contexts for the object contexts,
+  which can lead to difficulties when the meaning of hypothetico-general
+  judgement in the object language is stronger than in the LF; this is, for
+  instance, the case in MLTT~1979, where non-trivial functionality obligations
+  are incurred in the sequent judgement.
+
+  Another technique advanced by Krary is to represent contexts explicitly, and
+  then define a sequent judgement over them; this can be used to resolve the
+  problem described above (and several others), but it comes at the cost of
+  verbosity, and cannot be to encode \emph{telescopes}, which are contexts
+  where each successive term has the previous bound variables free in it.  In
+  this paper, I demonstrate a higher-order encoding of contexts and telescopes
+  which can be used to faithfully encode the sequent judgement for MLTT~1979.
+\end{abstract}
+
+\category{}{}{}
+\terms{Logical Frameworks}
+\keywords{Contexts, telescopes}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+To motivate this work, let us consider an encoding of MLTT~1979 in the logical
+framework. The syntax contains two sorts, $\sortval$ (for canonical forms) and
+$\sortexp$ (for non-canonical forms), and is defined in the following LF
+signature: \footnote{LF signatures are presented in the style of inference
+  rules for clarity. Object judgement forms have a \emph{mode} which expresses
+  which arguments represent inputs, and which represent outputs; in our
+  presentation, we color the inputs \emph{\InputMode\InputModeColorName}, and
+  the outputs \emph{\OutputMode\OutputModeColorName}. Proper assignment of
+modes may be used to construe a judgement as having algorithmic content.}
+
+\begin{gather*}
+  \infer{\sortval:\type}{}
+  \quad
+  \infer{\sortexp:\type}{}\\[6pt]
+  %
+  \infer{\tyvoid:\sortval}{}
+  \quad
+  \infer{\tyunit:\sortval}{}
+  \quad
+  \infer{
+    \typi(A;[x]B\,x):\sortval
+  }{
+    A:\sortexp &
+    B:\sortexp\to\sortexp
+  }
+  \quad
+  \infer{
+    \tysg(A;[x]B\,x):\sortval
+  }{
+    A:\sortexp &
+    B:\sortexp\to\sortexp
+  }\\[6pt]
+  %
+  \infer{\ax:\sortval}{}
+  \quad
+  \infer{
+    \lam[x]E\,x:\sortval
+  }{
+    E:\sortexp\to\sortexp
+  }
+  \quad
+  \infer{
+    \pair(M;N):\sortval
+  }{
+    M:\sortexp &
+    N:\sortexp
+  } \\[6pt]
+  %
+  \infer{
+    \thunk{M}:\sortexp
+  }{
+    M:\sortval
+  }
+  \quad
+  \infer{
+    \ap(M;N):\sortexp
+  }{
+    M:\sortexp &
+    N:\sortexp
+  }
+  \quad
+  \infer{
+    \fst(M):\sortexp
+  }{
+    M:\sortexp
+  }
+  \quad
+  \infer{
+    \snd(M):\sortexp
+  }{
+    M:\sortexp
+  }
+\end{gather*}
+
+
+Then, the language is accorded a simple big-step operational semantics via the
+\framebox{$\eval{M}{N}$} judgement:
+
+\begin{gather*}
+  \infer{
+    \eval{M}{N}:\type
+  }{
+    M:\sortexp &
+    N:\sortval
+  }\\[6pt]
+  %
+  \infer[\evalrule\uparrow]{
+    \eval{\thunk{M}}{M}
+  }{
+  }
+  \quad
+  \infer[\evalrule\ap]{
+    \eval{\ap(\thunk{\lam[x]E(x)};M)}{N}
+  }{
+    \eval{E\,M}{N}
+  }\\[6pt]
+  %
+  \infer[\evalrule\fst]{
+    \eval{\fst(\thunk{\pair(M;N)})}{M'}
+  }{
+    \eval{M}{M'}
+  }
+  \quad
+  \infer[\evalrule\snd]{
+    \eval{\fst(\thunk{\pair(M;N)})}{N'}
+  }{
+    \eval{N}{N'}
+  }
+\end{gather*}
+
+\section{The Na\"ive Higher-Order Approach}
+
+Informally, there are four basic categorical judgements in MLTT~1979:\\
+
+\begin{tabular}{ll}
+  \toprule
+  Form & Pronunciation\\
+  \midrule
+  $\isset{A}$ & $A$ is a set\\
+  $\eqset{A}{B}$ & $A$ and $B$ are equal sets\\
+  $\mem{M}{A}$ & $M$ is a member of $A$\\
+  $\eqmem{M}{N}{A}$ & $M$ and $N$ are equal members of $A$\\
+  \bottomrule
+\end{tabular}\\
+
+\medskip\noindent The subjects of these judgements are terms of sort
+$\sortexp$. However, implicit in Martin-L\"of's presentation are four prior
+judgements which operate only on canonical forms (i.e. terms of sort
+$\sortval$). We will therefore introduce the following LF signature to account
+for this:
+
+\begin{gather*}
+  \infer{
+    \canset{A}:\type
+  }{
+    A:\sortval
+  }\quad
+  \infer{
+    \eqcanset{A}{B}:\type
+  }{
+    A:\sortval &
+    B:\sortval
+  }\quad
+  \infer{
+    \canmem{M}{A}:\type
+  }{
+    M:\sortval &
+    A:\sortval
+  }\quad
+  \infer{
+    \eqcanmem{M}{N}{A}:\type
+  }{
+    M:\sortval &
+    N:\sortval &
+    A:\sortval
+  }\\[6pt]
+  \infer{
+    \isset{A}:\type
+  }{
+    A:\sortval
+  }\quad
+  \infer{
+    \eqset{A}{B}:\type
+  }{
+    A:\sortexp &
+    B:\sortexp
+  }\quad
+  \infer{
+    \mem{M}{A}:\type
+  }{
+    M:\sortexp &
+    A:\sortexp
+  }\quad
+  \infer{
+    \eqmem{M}{N}{A}:\type
+  }{
+    M:\sortexp &
+    N:\sortexp &
+    A:\sortexp
+  }
+\end{gather*}
+
+Then, we will give the meanings of the judgements which deal with non-canonical
+forms first, anticipating the explanations of the canonical forms judgements.
+
+\begin{gather*}
+  \infer{
+    \isset{A}
+  }{
+    \eval{A}{A'} &
+    \canset{A'}
+  }\quad
+  \infer{
+    \eqset{A}{B}
+  }{
+    \begin{array}{c}
+      \eval{A}{A'} \\
+      \eval{B}{B'}
+    \end{array} &
+      \eqcanset{A'}{B'}
+  }\\[6pt]
+  \infer{
+    \mem{M}{A}
+  }{
+    \begin{array}{c}
+      \eval{M}{M'}\\
+      \eval{A}{A'}
+    \end{array} &
+    \canmem{M'}{A'}
+  }\quad
+  \infer{
+    \eqmem{M}{N}{A}
+  }{
+    \begin{array}{c}
+      \eval{M}{M'} \\
+      \eval{N}{N'} \\
+      \eval{A}{A'}
+    \end{array} &
+    \eqcanmem{M'}{N'}{A'}
+  }
+\end{gather*}
+
+Following Martin-L\"of, we give an extensional equality for all types (i.e.\
+two types are equal when they have the same membership and equivalence
+relations); we could choose an intensional/structural equality for types, but
+for our purposes here, it is not necessary.
+
+\begin{gather*}
+  \infer{
+    \eqcanset{A}{B}
+  }{
+    \begin{array}{l}
+      \lfpi{M}{\canmem{M}{A}\to\canmem{M}{B}}\\
+      \lfpi{M}{\canmem{M}{B}\to\canmem{M}{A}}\\
+      \lfpi{M,N}{\eqcanmem{M}{N}{A}\to\eqcanmem{M}{N}{B}}\\
+      \lfpi{M,N}{\eqcanmem{M}{N}{B}\to\eqcanmem{M}{N}{A}}
+    \end{array}
+  }
+\end{gather*}
+
+Then, all we have to do is define the remaining canonical forms judgements with
+respect to our syntax. For the base types, this is trivial:
+
+\begin{gather*}
+  \infer{
+    \canset\tyvoid
+  }{
+  }\quad
+  \infer{
+    \canset\tyunit
+  }{
+  }\quad
+  \infer{
+    \canmem\ax\tyunit
+  }{
+  }\quad
+  \infer{
+    \eqcanmem\ax\ax\tyunit
+  }{
+  }
+\end{gather*}
+
+But for terms which involve binding, the rules will become more complicated.
+Informally, Martin-L\"of gives the following formation rule for $\mathsf\Pi$
+using hypothetico-general judgement:
+\[
+  \infer[*]{
+    \canset{\mathsf{\Pi}(x\in A)B(x)}
+  }{
+    \isset{A} &
+    \isset{B(x)}\;(\mem{x}{A})
+  }
+\]
+So we might be tempted to do something similar in the LF, as follows:
+\[
+  \infer[*']{
+    \canset{\typi(A;[x]B\,x)}
+  }{
+    \isset{A} &
+    \lfpi{x}\mem{x}{A}\to\isset{B(x)}
+  }
+\]
+
+This encoding, however, is not adequate, since the meaning of
+hypothetico-general judgement in Martin-L\"of's informal metalangauge is not
+captured by the above attempt. Recall that hypothetico-general judgement in
+type theory implicitly requires \emph{functionality} of type and term families;
+therefore, in order for our definition to be correct, we would have to adjust
+the rule to include functionality:
+\[
+  \infer{
+    \canset{\typi(A;[x]B\,x)}
+  }{
+    \isset{A} &
+    \begin{array}{l}
+      \lfpi{x}\mem{x}{A}\to\isset{B(x)}\\
+      \lfpi{x,y}\eqmem{x}{y}{A}\to\eqset{B(x)}{B(y)}\\
+    \end{array}
+  }
+\]
+
+We have at least got closer, but even this is not really satisfactory; we were
+unable to factor out the functionality constraints, and must be careful to
+place them in all the right places in each and every rule. Contrast this with
+Martin-L\"of's definition of hypothetico-general judgement, which includes
+functionality from the start, allowing the other judgements to use this ``off
+the shelf''.
+
+\section{Explicit Contexts \`a la Krary}
+In order to factor out functionality constraints, it will be necessary to
+consider the use of contexts in the encoding, and then recast the judgements
+above as being sequents, i.e.\ judgements with respect to a context. Krary's
+first-order encoding of explicit contexts in the LF is essentially the
+following:
+
+\begin{gather*}
+  \infer{\sortctx:\type}{}
+  \quad
+  \infer{\cdot:\sortctx}{}
+  \quad
+  \infer{
+    (\Gamma,X:A):\sortctx
+  }{
+    \Gamma:\sortctx &
+    X:\sortexp &
+    A:\sortexp
+  }\\[6pt]
+  \infer{
+    \isvar{X}{I} : \type
+  }{
+    X:\sortexp &
+    I:\naturals
+  }
+  \quad
+  \infer{
+    \precedes{X}{Y}: \type
+  }{
+    X:\sortexp &
+    Y:\sortexp
+  }\quad
+  \infer{
+    \precedes{X}{Y}
+  }{
+    \isvar{X}{I} &
+    \isvar{Y}{J} &
+    \lessthan{I}{J}
+  }\\[6pt]
+  \infer{
+    \bounded{\Gamma}{X}:\type
+  }{
+    \Gamma:\sortctx &
+    X:\sortexp
+  }
+  \quad
+  \infer{
+    \bounded{\cdot}{X}
+  }{
+    \isvar{X}{I}
+  }
+  \quad
+  \infer{
+    \bounded{\Gamma,Y:A}{X}
+  }{
+    \precedes{Y}{X} &
+    \bounded{G}{Y}
+  }
+  \\[6pt]
+  \infer{
+    \ordered\Gamma:\type
+  }{
+    \Gamma:\sortctx
+  }
+  \quad
+  \infer{\ordered\cdot}{}
+  \quad
+  \infer{
+    \ordered{\Gamma,X:A}
+  }{
+    \bounded{\Gamma}{X}
+  }
+  \\[6pt]
+\end{gather*}
+
+Note that the well-formedness constraints above do not in practice protrude
+into the definitions of judgements which \emph{use} explicit contexts; they are
+only used in metatheorems. This encoding is very practical for certain calculi,
+but it is concerning in our case for a few reasons:
+
+\begin{enumerate}
+
+  \item The correctness of this encoding depends very strongly on its
+    \emph{use}: this only truly encodes contexts if in every case a LF-variable
+    is used for $X$.  Moreover, the various well-formedness constraints are a
+    bit inelegant, as is the concept of mapping LF variables to indices.
+
+  \item It is not possible to construct such a context on its own as a
+    syntactic object of (LF-)type $\sortctx$, where variables bound earlier in
+    the context may appear free later in the context. This can be done
+    otherwise by constructing an object of type $\sortctx$ in an extended
+    LF-context; the well-formedness of such a context is still an extrinsic
+    property, though.
+
+  \item A straightforward higher-order encoding is preferable (if possible)
+    when working in the LF.
+
+\end{enumerate}
+
+\section{Encoding Telescopes in Higher-Order Abstract Syntax}
+More precisely, it seems that what we really need is an encoding of
+\emph{telescopes}, in the sense of De Bruijn. A telescope is essentially a
+sequence of type assignments, where variables bound earlier may appear free
+later, for instance:
+\[
+  \cdot,x_1:A_1, x_2:A_2(x_1), x_3:A_3(x_1,x_2), \dots, x_n:A_n(x_1,\dots,x_{n-1})
+\]
+
+To encode this in a straightforward, higher-order manner, we shall first
+stipulate that each variable in the telescope will be an LF-variable. Then,
+each type $A_i$ in the telescope will be a term with $i-n$ bindings (i.e.\ it
+will be an $i$-ary $\lambda$-abstraction). We'll define by mutual induction a
+sort for telescopes $\sorttele$, and a sort for open terms with respect to a
+telescope $\sortoexp{\Psi}$:
+
+\begin{gather*}
+  \infer{\sorttele:\type}{}
+  \quad
+  \infer{
+    \sortoexp{\Psi}:\type
+  }{
+    \Psi:\sorttele
+  }\\[6pt]
+  \infer{\cdot:\sorttele}{}
+  \quad
+  \infer{
+    \Psi,A:\sorttele
+  }{
+    \Psi:\sorttele &
+    A:\sortoexp{\Psi}
+  }\\[6pt]
+  \infer{\nobind{M}:\sortoexp{\cdot}}{}
+  \quad
+  \infer{
+    \bind{x}{M(x)}:\sortoexp{\Psi,A}
+  }{
+    M:\sortexp\to\sortoexp\Psi
+  }
+\end{gather*}
+
+Note that we do not put any well-typedness constraints on the arguments of the
+bound term constructors; we wish to separate object syntax from object
+judgements; this is particularly important for an object theory which does not
+have decidable type checking.
+
+\end{document}
+
