@@ -13,6 +13,31 @@ judgement/mem : otm G -> otm G -> judgement G.
 judgement/eq-mem : otm G -> otm G -> otm G -> judgement G.
 %abbrev `eq-mem = judgement/eq-mem.
 
+
+% applies an open judgement to a term
+apply : judgement (G , C) -> (tm -> judgement G) -> type.
+%mode apply +J -J'.
+
+apply/type : apply (@ A `type) ([x] A x `type).
+apply/eq-type : apply (`eq-type (@ A) (@ B)) ([x] `eq-type (A x) (A x)).
+apply/mem : apply (@ M `∈ @ A) ([x] (M x) `∈ (A x)).
+apply/eq-mem : apply (`eq-mem (@ M) (@ N) (@ A)) ([x] `eq-mem (M x) (N x) (A x)).
+
+%worlds () (apply _ _).
+%total J (apply J _).
+
+% "stretches" an open judgement functionally across an interval
+stretch : judgement (G , C) -> (tm -> tm -> judgement G) -> type.
+%mode stretch +J -J=.
+
+stretch/type : stretch (@ A `type) ([x] [y] `eq-type (A x) (A y)).
+stretch/eq-type : stretch (`eq-type (@ A) (@ B)) ([x] [y] `eq-type (A x) (B y)).
+stretch/mem : stretch (@ M `∈ @ A) ([x] [y] `eq-mem (M x) (M y) (A x)).
+stretch/eq-mem : stretch (`eq-mem (@ M) (@ N) (@ A)) ([x] [y] `eq-mem (M x) (N y) (A x)).
+
+%worlds () (stretch _ _).
+%total J (stretch J _).
+
 % closed terms may be weakened
 weaken : {G:ctx} tm -> otm G -> type.
 %abbrev wk = weaken G.
@@ -24,44 +49,27 @@ weaken/, : weaken (G , A) M (@ [x] M')
 %total G (weaken G _ _).
 
 >> : {G:ctx} judgement G -> type. %infix left 7 >>.
->>/type/· : · >> ! A `type
-             <- A is-type.
->>/type/, : G , B >> @ A `type
-             <- ({x} {x'} wk x x'
-                   -> {y} {y'} wk y y'
-                   -> G >> `eq-mem x' y' B
-                   -> G >> `eq-type (A x) (A y))
-             <- {x} {x'} wk x x'
-                -> G >> x' `∈ B
-                -> G >> A x `type.
->>/eq-type/· : · >> `eq-type (! A) (! B)
-                <- eq-type A B.
->>/eq-type/, : G , C >> `eq-type (@ A) (@ B)
-                <- ({x} {x'} wk x x'
-                      -> {y} {y'} wk y y'
-                      -> G >> `eq-mem x' y' C
-                      -> G >> `eq-type (A x) (B y))
-                <- {x} {x'} wk x x'
-                   -> G >> x' `∈ C
-                   -> G >> `eq-type (A x) (B x).
->>/mem/· : · >> ! M `∈ ! A
-            <- mem M A.
->>/mem/, : G , B >> @ M `∈ @ A
-            <- ({x} {x'} wk x x'
-                  -> {y} {y'} wk y y'
-                  -> G >> `eq-mem x' y' B
-                  -> G >> `eq-mem (M x) (M y) (A x))
-            <- {x} {x'} wk x x'
-               -> G >> x' `∈ B
-               -> G >> M x `∈ A x.
->>/eq-mem/, : G , B >> `eq-mem (@ M) (@ N) (@ A)
-               <- ({x} {x'} wk x x'
-                     -> {y} {y'} wk y y'
-                     -> G >> `eq-mem x' y' B
-                     -> G >> `eq-mem (M x) (N y) (A x))
-               <- {x} {x'} wk x x'
-                  -> G >> x' `∈ B
-                  -> G >> `eq-mem (M x) (N x) (A x).
+%mode >> +G +J.
 
+>>/·/type : · >> ! A `type
+             <- A is-type.
+>>/·/eq-type : · >> `eq-type (! A) (! B)
+                <- eq-type A B.
+>>/·/mem : · >> ! M `∈ ! A
+            <- mem M A.
+>>/·/eq-mem : · >> `eq-mem (! M) (! N) (! A)
+               <- eq-mem M N A.
+
+>>/, : G , A >> J
+        <- stretch J J=
+        <- apply J J'
+        <- ({x} {x'} wk x x'
+              -> G >> x' `∈ A
+              -> G >> J' x)
+        <- ({x} {x'} wk x x'
+              -> {y} {y'} wk y y'
+              -> G >> `eq-mem x' y' A
+              -> G >> J= x y).
+                               
 %solve - : · , ! ↑ unit >> (@ [_] ! ↑ unit) `type.
 %solve - : (· , ! ↑ unit , @ [x] ! ↑ unit) >> (@ [x] @ [y] ! ↑ unit) `type.
