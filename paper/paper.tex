@@ -102,10 +102,12 @@
   Another technique advanced by Krary is to represent contexts explicitly, and
   then define a sequent judgement over them; this can be used to resolve the
   problem described above (and several others), but it comes at the cost of
-  verbosity, and cannot be to encode \emph{telescopes}, which are contexts
-  where each successive term has the previous bound variables free in it.  In
-  this paper, I demonstrate a higher-order encoding of contexts and telescopes
-  which can be used to faithfully encode the sequent judgement for MLTT~1979.
+  verbosity, and introduces difficulties when used to encode \emph{telescopes}
+  in the LF, which are contexts where where each successive term has the
+  previous bound variables free in it.  In this paper, I demonstrate a
+  higher-order encoding of telescopes which can be used to faithfully encode
+  the functional sequent judgement for MLTT~1979.
+
 \end{abstract}
 
 \category{}{}{}
@@ -600,9 +602,9 @@ A more general definition of weakening can be given, but the simple one above
 suffices for our use-case.
 
 \section{Encoding Functional Hypothetico-General Judgement}
-Henceforth I shall use the term ``sequent judgement'' to mean a
+Henceforth I shall use the term ``functional sequent judgement'' to mean a
 hypothetico-general judgement which also requires functionality. First, before
-we get to the sequent judgement, we will need the concept of an ``open
+we get to the functional sequent judgement, we will need the concept of an ``open
 categorical judgement''; this is a judgement which has variables from a
 telescope free in it.
 
