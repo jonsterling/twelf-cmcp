@@ -1,0 +1,21 @@
+sg/elim/1 : mem M (↑ sg A B) -> mem (fst M) A -> type.
+%mode sg/elim/1 +D -E.
+
+- : sg/elim/1
+     (mem/def
+        (can-mem/pair
+           (mem/def
+              (M1'∈A' : can-mem M1' A')
+              (A=>A' : A => A')
+              (M1=>M1' : M1 => M1'))
+           (Y : mem M2 (B M1))
+           : can-mem (pair M1 M2) (sg A B))
+        =>/↑
+        (M=>, : M => pair M1 M2))
+     (mem/def
+        M1'∈A'
+        A=>A'
+        (=>/fst M1=>M1' M=>,)).
+
+%worlds () (sg/elim/1 _ _).
+%total D (sg/elim/1 D _).
