@@ -511,9 +511,9 @@ but it is concerning in our case for a few reasons:
 \begin{enumerate}
 
   \item The correctness of this encoding depends very strongly on its
-    \emph{use}: this only truly encodes contexts if in every case a LF-variable
+    \emph{use}: this only truly encodes contexts if in every case an LF-variable
     is used for $X$.  Moreover, the various well-formedness constraints are a
-    bit inelegant, as is the concept of mapping LF variables to indices.
+    bit inelegant, as is the concept of mapping LF variables to De Bruijn indices.
 
   \item It is not possible to construct such a context on its own as a
     syntactic object of (LF-)type $\sortctx$, where variables bound earlier in
@@ -529,16 +529,16 @@ but it is concerning in our case for a few reasons:
 
 \section{Encoding Telescopes in Higher-Order Abstract Syntax}
 More precisely, it seems that what we really need is an encoding of
-\emph{telescopes}, in the sense of De Bruijn. A telescope is essentially a
+\emph{telescopes}, in the sense of De Bruijn. A telescope is a
 sequence of type assignments, where variables bound earlier may appear free
-later, for instance:
+later; for instance:
 \[
   \cdot,x_1:A_1, x_2:A_2(x_1), x_3:A_3(x_1,x_2), \dots, x_n:A_n(x_1,\dots,x_{n-1})
 \]
 
 To encode this in a straightforward, higher-order manner, we shall first
 stipulate that each variable in the telescope will be an LF-variable. Then,
-each type $A_i$ in the telescope will be a term with $i-n$ bindings (i.e.\ it
+each type $A_i$ in the telescope will be a term with $i-n$ LF-bindings (i.e.\ it
 will be an $i$-ary $\lambda$-abstraction). We'll define by mutual induction a
 sort for telescopes $\sorttele$, and a sort for open terms with respect to a
 telescope $\sortoexp{\Psi}$:
@@ -604,13 +604,13 @@ suffices for our use-case.
 \section{Encoding Functional Hypothetico-General Judgement}
 Henceforth I shall use the term ``functional sequent judgement'' to mean a
 hypothetico-general judgement which also requires functionality. First, before
-we get to the functional sequent judgement, we will need the concept of an ``open
-categorical judgement''; this is a judgement which has variables from a
-telescope free in it.
+we get to the functional sequent judgement, we will need the concept of an
+``general categorical judgement''; this is a judgement which has variables from
+a telescope free in it.
 
-\subsection{Codes for Open Judgements}
+\subsection{Codes for General Judgements}
 We will define \emph{codes} for such judgements and then
-interpret them into proper object judgement (LF-types) later.
+interpret them into proper object judgements (LF-types) later.
 
 \begin{gather*}
   \infer{
@@ -650,7 +650,7 @@ interpret them into proper object judgement (LF-types) later.
 
 The next thing to do is to specify how each of these judgement(-codes) behaves
 operationally (i.e. by substituting its outermost variable); we will do so by
-extending the LF signature with a new judgement
+extending the LF signature with a new algorithmic judgement
 $\sploot{\mathcal{J}}{\mathcal{J}'}$ (``$\InputMode{\mathcal{J}}$ sploots into
 $\OutputMode{\mathcal{J}'}$'') and making it evident on all inputs:
 
