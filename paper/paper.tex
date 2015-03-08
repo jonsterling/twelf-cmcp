@@ -42,6 +42,7 @@
 \newcommand\evalrule[1]{\Rightarrow_{#1}}
 \newcommand\nobind[1]{{\color{Gray}!}#1}
 \newcommand\bind[2]{{\color{Gray}@}[#1]#2}
+\newcommand\tacitbind[1]{{\color{Gray}@}#1}
 
 \newcommand\isset[1]{\InputMode{#1}\;\mathit{set}}
 \newcommand\eqset[2]{\InputMode{#1}=\InputMode{#2}\;\mathit{set}}
@@ -121,15 +122,15 @@
 
 \section{Introduction}
 
-To motivate this work, let us consider an encoding of Martin-L\"of's
-extensional, polymorphic type theory (MLTT~1979) in the logical framework (see
-\cite{Martin-Lof-1979} for a full presentation). The syntax contains two sorts,
-$\sortval$ (for canonical forms) and $\sortexp$ (for non-canonical forms), and
-is defined in the following LF signature: \footnote{LF signatures are presented
-  in the style of inference rules for clarity. Object judgement forms have a
-  \emph{mode} which expresses which arguments represent inputs, and which
-  represent outputs; in our presentation, we color the inputs
-  \emph{\InputMode\InputModeColorName}, and the outputs
+To motivate this work, let us consider an encoding of a fragment of
+Martin-L\"of's extensional, polymorphic type theory (MLTT~1979) in the logical
+framework (see \cite{Martin-Lof-1979} for a full presentation). The syntax
+contains two sorts, $\sortval$ (for canonical forms) and $\sortexp$ (for
+non-canonical forms), and is defined in the following LF signature:
+\footnote{LF signatures are presented in the style of inference rules for
+  clarity. Object judgement forms have a \emph{mode} which expresses which
+  arguments represent inputs, and which represent outputs; in our presentation,
+  we color the inputs \emph{\InputMode\InputModeColorName}, and the outputs
   \emph{\OutputMode\OutputModeColorName}. Proper assignment of modes may be
 used to construe a judgement as having algorithmic content.}
 
@@ -390,7 +391,7 @@ Informally, Martin-L\"of gives the following formation rule for $\mathsf\Pi$
 using hypothetico-general judgement:
 \[
   \infer[*]{
-    \canset{\mathsf{\Pi}(x\in A)B(x)}
+    \canset{(\mathsf{\Pi}x\in A)B}
   }{
     \isset{A} &
     \isset{B(x)}\;(\mem{x}{A})
@@ -820,6 +821,112 @@ machinery that we have built up so far:
     \end{array}
   }
 \end{gather*}
+
+\section{The Definitions of the Types}
+It is now possible to give the definitions of the types; recall that we will
+only be causing judgements of the following forms to become evident:
+$\canset{A}$, $\canmem{M}{A}$, $\eqcanmem{M}{N}{A}$; all other forms of
+judgement have been fully explained. The ``spirit'' of Martin-L\"of's type
+theory lies in the concept of evaluation of closed terms to canonical form, and
+as such, defining a type means only describing how its canonical verifications
+behave.
+
+Let us recall Martin-L\"of's informal rules and we will show how they are
+encoded in the logical framework. First, the cartesian product of a family of
+sets is defined by the following rules in \cite{Martin-Lof-1979}:
+\begin{gather*}
+  \infer{
+    \isset{(\mathsf{\Pi}x\in A)B}
+  }{
+    \isset{A} &
+    \isset{B(x)}\;(\mem{x}{A})
+  }\quad
+  \infer{
+    \mem{(\lambda x)b}{(\mathsf{\Pi}x\in A)B}
+  }{
+    \mem{b}{B}\ (\mem{x}{A})
+  }\quad
+  \infer{
+    \eqmem{(\lambda x)b}{(\lambda x)d}{(\mathsf{\Pi}x\in A)B}
+  }{
+    \eqmem{b}{d}{B}\ (x\in A)
+  }
+\end{gather*}
+%
+These rules are adequately encoded in our system as follows:
+\begin{gather*}
+  \infer{
+    \canset{\typi(A;B)}
+  }{
+    \isset{A} &
+    \sequent{\cdot,A}{\qisset{\tacitbind{B}}}
+  }\quad
+  \infer{
+    \canmem{\lam(E)}{\typi(A;B)}
+  }{
+    \sequent{\cdot,A}{\qmem{\tacitbind{E}}{\tacitbind{B}}}
+  }\quad
+  \infer{
+    \eqcanmem{\lam(E)}{\lam(E')}{\typi(A;B)}
+  }{
+    \sequent{\cdot,A}{\eqcanmem{\tacitbind{E}}{\tacitbind{E'}}{\tacitbind{B}}}
+  }
+\end{gather*}
+
+The disjoint union of a family of sets is also easily encoded; first
+Martin-L\"of's rules:
+\begin{gather*}
+  \infer{
+    \isset{(\mathsf{\Sigma}x\in A)B}
+  }{
+    \isset{A} &
+    \isset{B(x)}\;(\mem{x}{A})
+  }\quad
+  \infer{
+    \mem{(a,b)}{(\mathsf{\Sigma}x\in A)B}
+  }{
+    \mem{a}{A} &
+    \mem{b}{[a/x]B}
+  }\quad
+  \infer{
+    \eqmem{(a,b)}{(c,d)}{(\mathsf{\Sigma}x\in A)B}
+  }{
+    \eqmem{a}{c}{a} &
+    \eqmem{b}{d}{[a/x]B}
+  }
+\end{gather*}
+%
+and their encoding:
+\begin{gather*}
+  \infer{
+    \canset{\tysg(A;B)}
+  }{
+    \isset{A} &
+    \sequent{\cdot,A}{\qisset{\tacitbind{B}}}
+  }\quad
+  \infer{
+    \canmem{\pair(M,N)}{\tysg(A;B)}
+  }{
+    \mem{M}{A} &
+    \mem{N}{B(M)}
+  }\quad
+  \infer{
+    \eqcanmem{\pair(M;N)}{\pair(M';N')}{\typi(A;B)}
+  }{
+    \eqmem{M}{M'}{A} &
+    \eqmem{N}{N'}{B(M)}
+  }
+\end{gather*}
+
+And what of the elimination rules? The entire point of the verificationist
+meaning explanations which pervade \cite{Martin-Lof-1979} is that the
+elimination rules will not be part of the definitions of the types, but rather
+rules which are admissible, justified by the meanings of the judgements and the
+definitions of the types. So, only after having propounded the definitions
+above may we entertain \emph{proving} the elimination rules in the logical
+framework.
+
+\bigskip
 
 \bibliographystyle{acmtrans}
 \nocite{*}
