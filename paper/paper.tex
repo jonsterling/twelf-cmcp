@@ -81,6 +81,7 @@
 \newcommand\sequentruleeqset{\gg_{\mathsf{set}_=}}
 \newcommand\sequentrulemem{\gg_\in}
 \newcommand\sequentruleeqmem{\gg_{\in_=}}
+\newcommand\dlabel[2]{\begin{array}{c}\mathcal{#1}\\#2\end{array}}
 
 %% Crary Stuff
 \DeclareMathOperator\isvarop{\mathsf{isvar}}
@@ -334,7 +335,7 @@ forms first, anticipating the explanations of the canonical forms judgements.
       \eval{A}{A'} \\
       \eval{B}{B'}
     \end{array} &
-      \eqcanset{A'}{B'}
+    \eqcanset{A'}{B'}
   }\\[6pt]
   \infer{
     \mem{M}{A}
@@ -945,14 +946,12 @@ sets is admissible:
   \infer[\typi_E]{
     \mem{\ap(M;N)}{B(N)}
   }{
-    \begin{array}{c}
-      \mathcal{D}\\
-      \mem{M}{\thunk{\typi(A;B)}}\\
-    \end{array} &
-    \begin{array}{c}
-      \mathcal{E}\\
+    \dlabel{D}{
+      \mem{M}{\thunk{\typi(A;B)}}
+    } &
+   \dlabel{E}{
       \mem{N}{A}
-    \end{array}
+    }
   }
 \]
 }
@@ -962,24 +961,20 @@ sets is admissible:
      \infer[\mathcal{D}]{
        \mem{M}{\thunk{\typi(A;B)}}
      }{
-       \begin{array}{c}
-         \mathcal{D}' \\
-         \eval{M}{\lam E}
-       \end{array} &
+       \dlabel{D}{\eval{M}{\lam E}} &
        \infer{
          \canmem{\lam E}{\typi(A;B)}
        }{
          \infer{
            \sequent{\cdot,A}{\qmem{\tacitbind{E}}{\tacitbind{B}}}
          }{
-           \begin{array}{c}
-             \mathcal{D}''\\
+           \dlabel{D''}{
              \lfpi{x,x'}{
                \weaken{\cdot}{x}{x'}
                \to\sequent{\cdot}{\qmem{x'}{A}}
                \to\sequent{\cdot}{\qmem{\nobind{E(x)}}{\nobind{B(x)}}}
              }
-           \end{array} &
+           } &
            \dots
          }
        }
@@ -997,18 +992,9 @@ sets is admissible:
       \infer{
         \mem{E(N)}{B(N)}
       }{
-        \begin{array}{c}
-          \mathcal{F}'\\
-          \eval{E(N)}{X}
-        \end{array} &
-        \begin{array}{c}
-          \mathcal{F}''\\
-          \eval{B(N)}{C}
-        \end{array} &
-        \begin{array}{c}
-          \mathcal{F}'''\\
-          \canmem{X}{C}
-        \end{array}
+        \dlabel{F'}{\eval{E(N)}{X}} &
+        \dlabel{F''}{\eval{B(N)}{C}} &
+        \dlabel{F'''}{\canmem{X}{C}}
       }
     }
   \]
@@ -1020,23 +1006,11 @@ sets is admissible:
       \infer{
         \eval{\ap(M;N)}{X}
       }{
-        \begin{array}{c}
-          \mathcal{D}'\\
-          \eval{M}{\lam E}
-        \end{array} &
-        \begin{array}{c}
-          \mathcal{F}'\\
-          \eval{E(N)}{X}
-        \end{array}
+        \dlabel{D'}{\eval{M}{\lam E}} &
+        \dlabel{F'}{\eval{E(N)}{X}}
       }&
-      \begin{array}{c}
-        \mathcal{F}''\\
-        \eval{B(N)}{C}
-      \end{array}&
-      \begin{array}{c}
-        \mathcal{F}'''\\
-        \canmem{X}{C}
-      \end{array}
+      \dlabel{F''}{\eval{B(N)}{C}} &
+      \dlabel{F'''}{\canmem{X}{C}}
     }
   \]
 \end{proof}
@@ -1046,12 +1020,12 @@ sets is admissible:
   \infer[\tysg_{E_1}]{
     \mem{\fst(M)}{A}
   }{
-    \mem{M}{\thunk{\tysg(A;B)}} &
+    \dlabel{D}{\mem{M}{\thunk{\tysg(A;B)}}}
   }\quad
   \infer[\tysg_{E_2}]{
     \mem{\snd(M)}{B(\fst(M))}
   }{
-    \mem{M}{\thunk{\tysg(A;B)}} &
+    \dlabel{E}{\mem{M}{\thunk{\tysg(A;B)}}}
   }
 \]
 }
