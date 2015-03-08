@@ -57,6 +57,8 @@
 \newcommand\lfpi[2]{{\color{Gray}\forall\{#1\}}.\;#2}
 
 \newcommand\weaken[3]{\mathsf{wk}_{\InputMode{#1}}\,\InputMode{#2}\leadsto\OutputMode{#3}}
+\newcommand\weakenrulenil{\mathsf{wk}_\mathsf{nil}}
+\newcommand\weakenrulesnoc{\mathsf{wk}_\mathsf{snoc}}
 \newcommand\qisset[1]{#1\;`\mathit{set}}
 \newcommand\qeqset[2]{#1=#2\;`\mathit{set}}
 \newcommand\qmem[2]{#1\;`\!\!\in#2}
@@ -74,6 +76,11 @@
 
 \newcommand\sequent[2]{\InputMode{#1}\gg\InputMode{#2}}
 \newcommand\nece[1]{\gg\InputMode{#1}}
+
+\newcommand\sequentruleset{\gg_\mathsf{set}}
+\newcommand\sequentruleeqset{\gg_{\mathsf{set}_=}}
+\newcommand\sequentrulemem{\gg_\in}
+\newcommand\sequentruleeqmem{\gg_{\in_=}}
 
 %% Crary Stuff
 \DeclareMathOperator\isvarop{\mathsf{isvar}}
@@ -777,24 +784,24 @@ of MLTT~1979.
 The interpretations of the judgement codes in the empty context are trivial:
 
 \begin{gather*}
-  \infer={
+  \infer=[\sequentruleset]{
     \nece{\qisset{\nobind{A}}}
   }{
     \isset{A}
   }
   \quad
-  \infer={
+  \infer=[\sequentruleeqset]{
     \nece{\qeqset{\nobind{A}}{\nobind{B}}}
   }{
     \eqset{A}{B}
   }\\[6pt]
-  \infer={
+  \infer=[\sequentrulemem]{
     \nece{\qmem{\nobind{M}}{\nobind{A}}}
   }{
     \mem{M}{A}
   }
   \quad
-  \infer={
+  \infer=[\sequentruleeqmem]{
     \nece{\qeqmem{\nobind{M}}{\nobind{N}}{\nobind{A}}}
   }{
     \eqmem{M}{N}{A}
@@ -965,18 +972,14 @@ sets is admissible:
          \infer{
            \sequent{\cdot,A}{\qmem{\tacitbind{E}}{\tacitbind{B}}}
          }{
-           \infer{
+           \begin{array}{c}
+             \mathcal{D}''\\
              \lfpi{x,x'}{
                \weaken{\cdot}{x}{x'}
                \to\sequent{\cdot}{\qmem{x'}{A}}
                \to\sequent{\cdot}{\qmem{\nobind{E(x)}}{\nobind{B(x)}}}
              }
-           }{
-             \begin{array}{c}
-               \mathcal{D}''\\
-               \lfpi{x}{\mem{x}{A} \to \mem{E(x)}{B(x)}}
-             \end{array}
-           } &
+           \end{array} &
            \dots
          }
        }
@@ -984,23 +987,29 @@ sets is admissible:
   \]
 
   Admissibility follows from $\mathcal{D}'$, $\mathcal{D}''$, $\mathcal{E}$;
-  the derivation $\mathcal{D''}(N)(\mathcal{E})$ must have a canonical form as follows:
+  let $\mathcal{F} \equiv
+  \mathcal{D}''(N,\nobind{N},\weakenrulenil,\sequentrulemem\mathcal{E})$, which
+  must be a canonical derivation as follows:
   \[
-    \infer[\mathcal{D''}(N)(\mathcal{E})]{
-      \mem{E(N)}{B(N)}
+    \infer[\mathcal{F}]{
+      \sequent{\cdot}{\qmem{\nobind{E(N)}}{\nobind{B(N)}}}
     }{
-      \begin{array}{c}
-        \mathcal{F}\\
-        \eval{E(N)}{X}
-      \end{array} &
-      \begin{array}{c}
-        \mathcal{F}'\\
-        \eval{B(N)}{C}
-      \end{array} &
-      \begin{array}{c}
-        \mathcal{F}''\\
-        \canmem{X}{C}
-      \end{array}
+      \infer{
+        \mem{E(N)}{B(N)}
+      }{
+        \begin{array}{c}
+          \mathcal{F}'\\
+          \eval{E(N)}{X}
+        \end{array} &
+        \begin{array}{c}
+          \mathcal{F}''\\
+          \eval{B(N)}{C}
+        \end{array} &
+        \begin{array}{c}
+          \mathcal{F}'''\\
+          \canmem{X}{C}
+        \end{array}
+      }
     }
   \]
   Whence we may construct the goal:
@@ -1016,16 +1025,16 @@ sets is admissible:
           \eval{M}{\lam E}
         \end{array} &
         \begin{array}{c}
-          \mathcal{F}\\
+          \mathcal{F}'\\
           \eval{E(N)}{X}
         \end{array}
       }&
       \begin{array}{c}
-        \mathcal{F}'\\
+        \mathcal{F}''\\
         \eval{B(N)}{C}
       \end{array}&
       \begin{array}{c}
-        \mathcal{F}''\\
+        \mathcal{F}'''\\
         \canmem{X}{C}
       \end{array}
     }
