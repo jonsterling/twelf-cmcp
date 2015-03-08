@@ -986,7 +986,7 @@ sets is admissible:
   Admissibility follows from $\mathcal{D}'$, $\mathcal{D}''$, $\mathcal{E}$;
   the derivation $\mathcal{D''}(N)(\mathcal{E})$ must have a canonical form as follows:
   \[
-    \infer{
+    \infer[\mathcal{D''}(N)(\mathcal{E})]{
       \mem{E(N)}{B(N)}
     }{
       \begin{array}{c}
@@ -1011,11 +1011,23 @@ sets is admissible:
       \infer{
         \eval{\ap(M;N)}{X}
       }{
-        \infer[\mathcal{D}']{\eval{M}{\lam E}}{} &
-        \infer[\mathcal{F}]{\eval{E(N)}{X}}{}
+        \begin{array}{c}
+          \mathcal{D}'\\
+          \eval{M}{\lam E}
+        \end{array} &
+        \begin{array}{c}
+          \mathcal{F}\\
+          \eval{E(N)}{X}
+        \end{array}
       }&
-      \infer[\mathcal{F}']{\eval{B(N)}{C}}{}&
-      \infer[\mathcal{F}'']{\canmem{X}{C}}{}&
+      \begin{array}{c}
+        \mathcal{F}'\\
+        \eval{B(N)}{C}
+      \end{array}&
+      \begin{array}{c}
+        \mathcal{F}''\\
+        \canmem{X}{C}
+      \end{array}
     }
   \]
 \end{proof}
