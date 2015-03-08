@@ -12,6 +12,7 @@ ctx/snoc : {G:ctx} otm G -> ctx.
 
 ! : tm -> otm ·. %prefix 10 !.
 @ : (tm -> otm G) -> otm (G , A). %prefix 10 @.
+%abbrev @' = ([M] @ [x] M) : otm G -> otm (G , A). %prefix 10 @.
 
 % closed terms may be weakened
 weaken : {G:ctx} tm -> otm G -> type.

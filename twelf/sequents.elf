@@ -28,5 +28,5 @@
               -> G >> `eq-mem x' y' A
               -> G >> J= x y).
                                
-%solve - : · , ! ↑ unit >> (@ [_] ! ↑ unit) `type.
-%solve - : (· , ! ↑ unit , @ [x] ! ↑ unit) >> (@ [x] @ [y] ! ↑ unit) `type.
+%solve - : · , ! ↑ unit >> (@' ! ↑ unit) `type.
+%solve - : (· , ! ↑ unit , @' ! ↑ unit) >> @' (@' ! ↑ unit) `type.
