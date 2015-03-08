@@ -895,7 +895,7 @@ Martin-L\"of's rules:
   \infer{
     \eqmem{(a,b)}{(c,d)}{(\mathsf{\Sigma}x\in A)B}
   }{
-    \eqmem{a}{c}{a} &
+    \eqmem{a}{c}{A} &
     \eqmem{b}{d}{[a/x]B}
   }
 \end{gather*}
@@ -1037,12 +1037,12 @@ sets is admissible:
   \infer[\tysg_{E_1}]{
     \mem{\fst(M)}{A}
   }{
-    \mem{M}{\thunk{\tysg(A;[x]B(x))}} &
+    \mem{M}{\thunk{\tysg(A;B)}} &
   }\quad
   \infer[\tysg_{E_2}]{
     \mem{\snd(M)}{B(\fst(M))}
   }{
-    \mem{M}{\thunk{\tysg(A;[x]B(x))}} &
+    \mem{M}{\thunk{\tysg(A;B)}} &
   }
 \]
 }
