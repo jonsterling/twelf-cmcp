@@ -2,11 +2,13 @@
 
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{wasysym}
 \usepackage{booktabs}
 \usepackage{proof}
 \usepackage{twelf}
 \usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
 \usepackage{code}
+\usepackage{scalerel}
 
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{conjecture}[theorem]{Conjecture}
@@ -33,6 +35,8 @@
 \newcommand\sortctx{\mathsf{ctx}}
 \newcommand\sorttele{\mathsf{tele}}
 \newcommand\sortoexp[1]{[#1]\sortexp}
+\newcommand\sortj{\mathsf{judg}}
+\newcommand\sortoj[1]{[#1]\sortj}
 \newcommand\eval[2]{\InputMode{#1}\mathbin{\Rightarrow}\OutputMode{#2}}
 \newcommand\thunk[1]{{\color{Gray}\uparrow}#1}
 \newcommand\evalrule[1]{\Rightarrow_{#1}}
@@ -50,12 +54,24 @@
 \newcommand\eqcanmem[3]{\InputMode{#1}=\InputMode{#2}\in_\mathsf{v}\InputMode{#3}}
 \newcommand\lfpi[2]{{\color{Gray}\forall\{#1\}}.\;#2}
 
+\newcommand\weaken[3]{\mathsf{wk}_{\InputMode{#1}}\,\InputMode{#2}\leadsto\OutputMode{#3}}
+\newcommand\qisset[1]{#1\;`\mathit{set}}
+\newcommand\qeqset[2]{#1=#2\;`\mathit{set}}
+\newcommand\qmem[2]{#1\;`\!\!\in#2}
+\newcommand\qeqmem[3]{#1=#2\;`\!\!\in#3}
+
 \DeclareMathOperator{\typi}{\mathsf{pi}}
 \DeclareMathOperator{\tysg}{\mathsf{sg}}
 \DeclareMathOperator{\lam}{\mathsf{\lambda}}
 \DeclareMathOperator{\pair}{\mathsf{pair}}
 \DeclareMathOperator{\fst}{\mathsf{fst}}
 \DeclareMathOperator{\snd}{\mathsf{snd}}
+
+\newcommand\sploot[2]{\InputMode{#1}\triangleright\OutputMode{#2}}
+\newcommand\refract[2]{\InputMode{#1}\ltimes\OutputMode{#2}}
+
+\newcommand\sequent[2]{\InputMode{#1}\gg\InputMode{#2}}
+\newcommand\nece[1]{\gg\InputMode{#1}}
 
 %% Krary Stuff
 \DeclareMathOperator\isvarop{\mathsf{isvar}}
@@ -122,14 +138,14 @@ modes may be used to construe a judgement as having algorithmic content.}
   \infer{\tyunit:\sortval}{}
   \quad
   \infer{
-    \typi(A;[x]B\,x):\sortval
+    \typi(A;[x]B(x)):\sortval
   }{
     A:\sortexp &
     B:\sortexp\to\sortexp
   }
   \quad
   \infer{
-    \tysg(A;[x]B\,x):\sortval
+    \tysg(A;[x]B(x)):\sortval
   }{
     A:\sortexp &
     B:\sortexp\to\sortexp
@@ -138,7 +154,7 @@ modes may be used to construe a judgement as having algorithmic content.}
   \infer{\ax:\sortval}{}
   \quad
   \infer{
-    \lam[x]E\,x:\sortval
+    \lam[x]E(x):\sortval
   }{
     E:\sortexp\to\sortexp
   }
@@ -196,7 +212,7 @@ Then, the language is accorded a simple big-step operational semantics via the
   \infer[\evalrule\ap]{
     \eval{\ap(\thunk{\lam[x]E(x)};M)}{N}
   }{
-    \eval{E\,M}{N}
+    \eval{E(M)}{N}
   }\\[6pt]
   %
   \infer[\evalrule\fst]{
@@ -378,7 +394,7 @@ using hypothetico-general judgement:
 So we might be tempted to do something similar in the LF, as follows:
 \[
   \infer[*']{
-    \canset{\typi(A;[x]B\,x)}
+    \canset{\typi(A;[x]B(x))}
   }{
     \isset{A} &
     \lfpi{x}\mem{x}{A}\to\isset{B(x)}
@@ -393,7 +409,7 @@ therefore, in order for our definition to be correct, we would have to adjust
 the rule to include functionality:
 \[
   \infer{
-    \canset{\typi(A;[x]B\,x)}
+    \canset{\typi(A;[x]B(x))}
   }{
     \isset{A} &
     \begin{array}{l}
@@ -541,12 +557,17 @@ telescope $\sortoexp{\Psi}$:
     \Psi:\sorttele &
     A:\sortoexp{\Psi}
   }\\[6pt]
-  \infer{\nobind{M}:\sortoexp{\cdot}}{}
+  \infer{
+    \nobind{M}:\sortoexp{\cdot}
+  }{
+    M:\sortexp
+  }
   \quad
   \infer{
     \bind{x}{M(x)}:\sortoexp{\Psi,A}
   }{
-    M:\sortexp\to\sortoexp\Psi
+    M:\sortexp\to\sortoexp\Psi &
+    A:\sortoexp\Psi
   }
 \end{gather*}
 
@@ -554,6 +575,246 @@ Note that we do not put any well-typedness constraints on the arguments of the
 bound term constructors; we wish to separate object syntax from object
 judgements; this is particularly important for an object theory which does not
 have decidable type checking.
+
+Closed expressions may be weakened by extraneous variables:
+\begin{gather*}
+  \infer{
+    \weaken{\Psi}{M}{M'}:\type
+  }{
+    \Psi:\sorttele &
+    M:\sortexp &
+    M':\sortoexp\Psi
+  }\\[6pt]
+  \infer{
+    \weaken{\cdot}{M}{\nobind{M}}
+  }{
+  }\quad
+  \infer{
+    \weaken{\Psi,A}{M}{\bind{x}{M'}}
+  }{
+    \weaken{\Psi}{M}{M'}
+  }
+\end{gather*}
+
+A more general definition of weakening can be given, but the simple one above
+suffices for our use-case.
+
+\section{Encoding Functional Hypothetico-General Judgement}
+Henceforth I shall use the term ``sequent judgement'' to mean a
+hypothetico-general judgement which also requires functionality. First, before
+we get to the sequent judgement, we will need the concept of an ``open
+categorical judgement''; this is a judgement which has variables from a
+telescope free in it.
+
+\subsection{Codes for Open Judgements}
+We will define \emph{codes} for such judgements and then
+interpret them into proper object judgement (LF-types) later.
+
+\begin{gather*}
+  \infer{
+    \sortoj\Psi:\type
+  }{
+    \Psi:\sorttele
+  }\\[6pt]
+  \infer{
+    \qisset{A}:\sortoj\Psi
+  }{
+    A:\sortoexp\Psi
+  }
+  \quad
+  \infer{
+    \qeqset{A}{B}:\sortoj\Psi
+  }{
+    A:\sortoexp\Psi &
+    B:\sortoexp\Psi
+  }\\[6pt]
+  \infer{
+    \qmem{M}{A}:\sortoj\Psi
+  }{
+    M:\sortoexp\Psi &
+    A:\sortoexp\Psi
+  }
+  \quad
+  \infer{
+    \qeqmem{M}{N}{A}:\sortoj\Psi
+  }{
+    M:\sortoexp\Psi &
+    N:\sortoexp\Psi &
+    A:\sortoexp\Psi
+  }
+\end{gather*}
+
+\subsection{Sploosion and Refraction}
+
+The next thing to do is to specify how each of these judgement(-codes) behaves
+operationally (i.e. by substituting its outermost variable); we will do so by
+extending the LF signature with a new judgement
+$\sploot{\mathcal{J}}{\mathcal{J}'}$ (``$\InputMode{\mathcal{J}}$ sploots into
+$\OutputMode{\mathcal{J}'}$'') and making it evident on all inputs:
+
+\begin{gather*}
+  \infer{
+    \sploot{\mathcal{J}}{[x]\mathcal{J}'(x)}:\type
+  }{
+    \mathcal{J}:\sortoj{\Psi,A} &
+    \mathcal{J}': \sortexp\to\sortoj\Psi
+  }\\[6pt]
+  \infer{
+    \sploot{
+      \qisset{\bind{x}{A(x)}}
+    }{
+      [x]\; \qisset{A(x)}
+    }
+  }{
+  }\\[6pt]
+  \infer{
+    \sploot{
+      \qeqset{\bind{x}{A(x)}}{\bind{x}{B(x)}}
+    }{
+      [x]\; \qeqset{A(x)}{B(x)}
+    }
+  }{
+  }\\[6pt]
+  \infer{
+    \sploot{
+      \qmem{\bind{x}{M(x)}}{\bind{x}{A(x)}}
+    }{
+      [x]\; \qmem{M(x)}{A(x)}
+    }
+  }{
+  }\\[6pt]
+  \infer{
+    \sploot{
+      \qeqmem{\bind{x}{M(x)}}{\bind{x}{N(x)}}{\bind{x}{A(x)}}
+    }{
+      [x]\; \qeqmem{M(x)}{N(x)}{A(x)}
+    }
+  }{
+  }
+\end{gather*}
+
+Next, we will do something similar in order to show how each of these
+judgement(-codes) behaves extensionally, by introducing another algorithmic
+judgement $\refract{\mathcal{J}}{\mathcal{J}^=}$ (``$\InputMode{\mathcal{J}}$
+refracts into $\OutputMode{\mathcal{J}^=}$''). Intuitively, this judgement
+describes how what happens when you substitute two purportedly equal
+expressions in for the judgement-code's outermost variable.
+
+\begin{gather*}
+  \infer{
+    \refract{\mathcal{J}}{[x][y]\mathcal{J}'(x)(y)}:\type
+  }{
+    \mathcal{J}:\sortoj{\Psi,A} &
+    \mathcal{J}': \sortexp\to\sortexp\to\sortoj\Psi
+  }\\[6pt]
+  \infer{
+    \refract{
+      \qisset{\bind{x}{A(x)}}
+    }{
+      [x][y]\; \qeqset{A(x)}{A(y)}
+    }
+  }{
+  }\\[6pt]
+  \infer{
+    \refract{
+      \qeqset{\bind{x}{A(x)}}{\bind{x}{B(x)}}
+    }{
+      [x][y]\; \qeqset{A(x)}{B(y)}
+    }
+  }{
+  }\\[6pt]
+  \infer{
+    \refract{
+      \qmem{\bind{x}{M(x)}}{\bind{x}{A(x)}}
+    }{
+      [x][y]\; \qeqmem{M(x)}{M(y)}{A(x)}
+    }
+  }{
+  }\\[6pt]
+  \infer{
+    \refract{
+      \qeqmem{\bind{x}{M(x)}}{\bind{x}{N(x)}}{\bind{x}{A(x)}}
+    }{
+      [x][y]\; \qeqmem{M(x)}{N(y)}{A(x)}
+    }
+  }{
+  }
+\end{gather*}
+
+\subsection{The Functional Sequent Judgement}
+
+We finally have built up enough machinery to give an immediate and elegant
+encoding to Martin-L\"of's functional sequent judgement $\mathcal{J}\ (\Psi)$;
+we will notate it $\sequent{\Psi}{\mathcal{J}}$, or $\nece{\mathcal{J}}$ when
+$\Psi$ is the empty telescope. First we will define it, and then we'll go back
+and show some corresponding examples between our system and the informal rules
+of MLTT~1979.
+
+\begin{gather*}
+  \infer{
+    \sequent{\Psi}{\mathcal{J}}:\type
+  }{
+    \Psi:\sorttele &
+    \mathcal{J}:\sortoj\Psi
+  }
+  \quad
+  \infer{
+    \nece{\mathcal{J}} \equiv \sequent{\cdot}{\mathcal{J}} : \type
+  }{
+  }
+\end{gather*}
+
+The interpretations of the judgement codes in the empty context are trivial:
+
+\begin{gather*}
+  \infer={
+    \nece{\qisset{\nobind{A}}}
+  }{
+    \isset{A}
+  }
+  \quad
+  \infer={
+    \nece{\qeqset{\nobind{A}}{\nobind{B}}}
+  }{
+    \eqset{A}{B}
+  }\\[6pt]
+  \infer={
+    \nece{\qmem{\nobind{M}}{\nobind{A}}}
+  }{
+    \mem{M}{A}
+  }
+  \quad
+  \infer={
+    \nece{\qeqmem{\nobind{M}}{\nobind{N}}{\nobind{A}}}
+  }{
+    \eqmem{M}{N}{A}
+  }
+\end{gather*}
+
+The interpretations in open contexts may be done in one fell swoop using the
+machinery that we have built up so far:
+
+\begin{gather*}
+  \infer{
+    \sequent{\Psi,A}{\mathcal{J}}
+  }{
+    \begin{array}{c}
+      \sploot{\mathcal{J}}{[x]\mathcal{J}'(x)}\\
+      \refract{\mathcal{J}}{[x][y]\mathcal{J}^=(x)(y)}\\
+      \lfpi{x,x'}{
+        \weaken{\Psi}{x}{x'}
+        \to\sequent{\Psi}{\qmem{x'}{A}}
+        \to\sequent{\Psi}{\mathcal{J}'(x)}
+      }\\
+      \lfpi{x,x',y,y'}{
+        \weaken{\Psi}{x}{x'}
+        \to\weaken{\Psi}{y}{y'}
+        \to\sequent{\Psi}{\qeqmem{x'}{y'}{A}}
+        \to\sequent{\Psi}{\mathcal{J}^=(x)(y)}
+      }\\
+    \end{array}
+  }
+\end{gather*}
 
 \end{document}
 
