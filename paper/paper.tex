@@ -81,7 +81,8 @@
 \newcommand\sequentruleeqset{\gg_{\mathsf{set}_=}}
 \newcommand\sequentrulemem{\gg_\in}
 \newcommand\sequentruleeqmem{\gg_{\in_=}}
-\newcommand\dlabel[2]{\begin{array}{c}\mathcal{#1}\\#2\end{array}}
+\newcommand\dname[1]{\mathcal{#1}}
+\newcommand\dlabel[2]{\begin{array}{c}#1\\#2\end{array}}
 
 %% Crary Stuff
 \DeclareMathOperator\isvarop{\mathsf{isvar}}
@@ -667,15 +668,15 @@ interpret them into proper object judgements (LF-types) later.
 The next thing to do is to specify how each of these judgement(-codes) behaves
 operationally (i.e. by substituting its outermost variable); we will do so by
 extending the LF signature with a new algorithmic judgement
-$\sploot{\mathcal{J}}{\mathcal{J}'}$ (``$\InputMode{\mathcal{J}}$ sploots into
-$\OutputMode{\mathcal{J}'}$'') and making it evident on all inputs:
+$\sploot{\dname{J}}{\dname{J}'}$ (``$\InputMode{\dname{J}}$ sploots into
+$\OutputMode{\dname{J}'}$'') and making it evident on all inputs:
 
 \begin{gather*}
   \infer{
-    \sploot{\mathcal{J}}{[x]\mathcal{J}'(x)}:\type
+    \sploot{\dname{J}}{[x]\dname{J}'(x)}:\type
   }{
-    \mathcal{J}:\sortoj{\Psi,A} &
-    \mathcal{J}': \sortexp\to\sortoj\Psi
+    \dname{J}:\sortoj{\Psi,A} &
+    \dname{J}': \sortexp\to\sortoj\Psi
   }\\[6pt]
   \infer{
     \sploot{
@@ -713,17 +714,17 @@ $\OutputMode{\mathcal{J}'}$'') and making it evident on all inputs:
 
 Next, we will do something similar in order to show how each of these
 judgement(-codes) behaves extensionally, by introducing another algorithmic
-judgement $\refract{\mathcal{J}}{\mathcal{J}^=}$ (``$\InputMode{\mathcal{J}}$
-refracts into $\OutputMode{\mathcal{J}^=}$''). Intuitively, this judgement
+judgement $\refract{\dname{J}}{\dname{J}^=}$ (``$\InputMode{\dname{J}}$
+refracts into $\OutputMode{\dname{J}^=}$''). Intuitively, this judgement
 describes how what happens when you substitute two purportedly equal
 expressions in for the judgement-code's outermost variable.
 
 \begin{gather*}
   \infer{
-    \refract{\mathcal{J}}{[x][y]\mathcal{J}'(x)(y)}:\type
+    \refract{\dname{J}}{[x][y]\dname{J}'(x)(y)}:\type
   }{
-    \mathcal{J}:\sortoj{\Psi,A} &
-    \mathcal{J}': \sortexp\to\sortexp\to\sortoj\Psi
+    \dname{J}:\sortoj{\Psi,A} &
+    \dname{J}': \sortexp\to\sortexp\to\sortoj\Psi
   }\\[6pt]
   \infer{
     \refract{
@@ -762,22 +763,22 @@ expressions in for the judgement-code's outermost variable.
 \subsection{The Functional Sequent Judgement}
 
 We finally have built up enough machinery to give an immediate and elegant
-encoding to Martin-L\"of's functional sequent judgement $\mathcal{J}\ (\Psi)$;
-we will notate it $\sequent{\Psi}{\mathcal{J}}$, or $\nece{\mathcal{J}}$ when
+encoding to Martin-L\"of's functional sequent judgement $\dname{J}\ (\Psi)$;
+we will notate it $\sequent{\Psi}{\dname{J}}$, or $\nece{\dname{J}}$ when
 $\Psi$ is the empty telescope. First we will define it, and then we'll go back
 and show some corresponding examples between our system and the informal rules
 of MLTT~1979.
 
 \begin{gather*}
   \infer{
-    \sequent{\Psi}{\mathcal{J}}:\type
+    \sequent{\Psi}{\dname{J}}:\type
   }{
     \Psi:\sorttele &
-    \mathcal{J}:\sortoj\Psi
+    \dname{J}:\sortoj\Psi
   }
   \quad
   \infer{
-    \nece{\mathcal{J}} \equiv \sequent{\cdot}{\mathcal{J}} : \type
+    \nece{\dname{J}} \equiv \sequent{\cdot}{\dname{J}} : \type
   }{
   }
 \end{gather*}
@@ -814,21 +815,21 @@ machinery that we have built up so far:
 
 \begin{gather*}
   \infer{
-    \sequent{\Psi,A}{\mathcal{J}}
+    \sequent{\Psi,A}{\dname{J}}
   }{
     \begin{array}{c}
-      \sploot{\mathcal{J}}{[x]\mathcal{J}'(x)}\\
-      \refract{\mathcal{J}}{[x][y]\mathcal{J}^=(x)(y)}\\
+      \sploot{\dname{J}}{[x]\dname{J}'(x)}\\
+      \refract{\dname{J}}{[x][y]\dname{J}^=(x)(y)}\\
       \lfpi{x,x'}{
         \weaken{\Psi}{x}{x'}
         \to\sequent{\Psi}{\qmem{x'}{A}}
-        \to\sequent{\Psi}{\mathcal{J}'(x)}
+        \to\sequent{\Psi}{\dname{J}'(x)}
       }\\
       \lfpi{x,x',y,y'}{
         \weaken{\Psi}{x}{x'}
         \to\weaken{\Psi}{y}{y'}
         \to\sequent{\Psi}{\qeqmem{x'}{y'}{A}}
-        \to\sequent{\Psi}{\mathcal{J}^=(x)(y)}
+        \to\sequent{\Psi}{\dname{J}^=(x)(y)}
       }\\
     \end{array}
   }
@@ -946,73 +947,79 @@ sets is admissible:
   \infer[\typi_E]{
     \mem{\ap(M;N)}{B(N)}
   }{
-    \dlabel{D}{
+    \dlabel{\dname D}{
       \mem{M}{\thunk{\typi(A;B)}}
     } &
-   \dlabel{E}{
+   \dlabel{\dname E}{
       \mem{N}{A}
     }
   }
 \]
 }
 \begin{proof}
-  By induction on the derivation $\mathcal{D}$, which must have the following canonical form:
+  By induction on the derivation $\dname{D}$, which must have the following canonical form:
   \[
-     \infer[\mathcal{D}]{
+     \infer[\dname{D}]{
        \mem{M}{\thunk{\typi(A;B)}}
      }{
-       \dlabel{D}{\eval{M}{\lam E}} &
+       \dlabel{\dname D}{\eval{M}{\lam E}} &
        \infer{
          \canmem{\lam E}{\typi(A;B)}
        }{
          \infer{
            \sequent{\cdot,A}{\qmem{\tacitbind{E}}{\tacitbind{B}}}
          }{
-           \dlabel{D''}{
+           \dlabel{\dname D''}{
              \lfpi{x,x'}{
                \weaken{\cdot}{x}{x'}
                \to\sequent{\cdot}{\qmem{x'}{A}}
                \to\sequent{\cdot}{\qmem{\nobind{E(x)}}{\nobind{B(x)}}}
              }
            } &
-           \dots
+           \dlabel{}{\dots}
          }
        }
      }
   \]
 
-  Admissibility follows from $\mathcal{D}'$, $\mathcal{D}''$, $\mathcal{E}$;
-  let $\mathcal{F} \equiv
-  \mathcal{D}''(N,\nobind{N},\weakenrulenil,\sequentrulemem\mathcal{E})$, which
+  Admissibility follows from $\dname{D}'$, $\dname{D}''$, $\dname{E}$;
+  let $\dname{F} \equiv
+  \dname{D}''(N,\nobind{N},\weakenrulenil,\sequentrulemem\dname{E})$, which
   must be a canonical derivation as follows:
   \[
-    \infer[\mathcal{F}]{
+    \infer[\dname{F}]{
       \sequent{\cdot}{\qmem{\nobind{E(N)}}{\nobind{B(N)}}}
     }{
       \infer{
         \mem{E(N)}{B(N)}
       }{
-        \dlabel{F'}{\eval{E(N)}{X}} &
-        \dlabel{F''}{\eval{B(N)}{C}} &
-        \dlabel{F'''}{\canmem{X}{C}}
+        \dlabel{\dname F'}{\eval{E(N)}{X}} &
+        \dlabel{\dname F''}{\eval{B(N)}{C}} &
+        \dlabel{\dname F'''}{\canmem{X}{C}}
       }
     }
   \]
   Whence we may construct the goal:
-  \[
-    \infer{
-      \mem{\ap(M;N)}{B(N)}
-    }{
-      \infer{
-        \eval{\ap(M;N)}{X}
-      }{
-        \dlabel{D'}{\eval{M}{\lam E}} &
-        \dlabel{F'}{\eval{E(N)}{X}}
-      }&
-      \dlabel{F''}{\eval{B(N)}{C}} &
-      \dlabel{F'''}{\canmem{X}{C}}
-    }
-  \]
+  \medskip
+
+  \framebox{
+    \begin{minipage}{0.9\textwidth}
+      \[
+        \infer{
+          \mem{\ap(M;N)}{B(N)}
+        }{
+          \infer{
+            \eval{\ap(M;N)}{X}
+          }{
+            \dlabel{\dname D'}{\eval{M}{\lam E}} &
+            \dlabel{\dname F'}{\eval{E(N)}{X}}
+          }&
+          \dlabel{\dname F''}{\eval{B(N)}{C}} &
+          \dlabel{\dname F'''}{\canmem{X}{C}}
+        }
+      \]
+    \end{minipage}
+  }
 \end{proof}
 
 \theorem{The two standard elimination rules for the disjoint union of a family of sets are admissible:
@@ -1020,16 +1027,80 @@ sets is admissible:
   \infer[\tysg_{E_1}]{
     \mem{\fst(M)}{A}
   }{
-    \dlabel{D}{\mem{M}{\thunk{\tysg(A;B)}}}
+    \dlabel{\dname D}{\mem{M}{\thunk{\tysg(A;B)}}}
   }\quad
   \infer[\tysg_{E_2}]{
     \mem{\snd(M)}{B(\fst(M))}
   }{
-    \dlabel{E}{\mem{M}{\thunk{\tysg(A;B)}}}
+    \dlabel{\dname D}{\mem{M}{\thunk{\tysg(A;B)}}}
   }
 \]
 }
 \begin{proof}
+
+  The derivations of the elimination rules are constructed by induction on
+  $\dname{D}$, which must be a canonical derivation of the following form:
+  \[
+    \infer[\dname{D}]{
+      \mem{M}{\thunk{\tysg(A;B)}}
+    }{
+      \dlabel{\dname D_1}{
+        \eval{M}{\pair(M_1,M_2)}
+      } &
+      \infer{
+        \canmem{\pair(M_1,M_2)}{\tysg(A;B)}
+      }{
+        \infer{
+          \mem{M_1}{A}
+        }{
+          \dlabel{\dname D_2}{\eval{M_1}{X}} &
+          \dlabel{\dname D_3}{\eval{A}{A'}} &
+          \dlabel{\dname D_4}{\canmem{X}{A'}}
+        }&
+        \infer[\dname D_5]{
+          \mem{M_2}{B(M_1)}
+        }{
+          \dlabel{\dname D_6}{\eval{M_2}{Y}} &
+          \dlabel{\dname D_7}{\eval{B(M_1)}{C}} &
+          \dlabel{\dname D_8}{\canmem{Y}{C}}
+        }
+      }
+    }
+  \]
+
+  The two elimination rules are derived as follows:
+  \medskip
+
+  \framebox{
+    \begin{minipage}{0.9\textwidth}
+      \begin{gather*}
+        \infer[\tysg_{E_1}]{
+          \mem{\fst(M)}{A}
+        }{
+          \infer{
+            \eval{\fst(M)}{X}
+          }{
+            \dlabel{\dname D_1}{\eval{M}{\pair(M_1,M_2)}} &
+            \dlabel{\dname D_2}{\eval{M_1}{X}}
+          } &
+          \dlabel{\dname D_3}{\eval{A}{A'}} &
+          \dlabel{\dname D_4}{\canmem{X}{A'}}
+        }\\[12pt]
+        \infer[\tysg_{E_2}]{
+          \mem{\snd(M)}{B(\fst(M))}
+        }{
+          \infer{
+            \eval{\snd(M)}{Y}
+          }{
+            \dlabel{\dname D_1}{\eval{M}{\pair(M_1,M_2)}} &
+            \dlabel{\dname D_6}{\eval{M_2}{Y}}
+          }&
+          \dlabel{\dname D_7}{\eval{B(\fst(M))}{C}} & % TODO: A little fishy
+          \dlabel{\dname D_8}{\canmem{Y}{C}}
+        }
+      \end{gather*}
+    \end{minipage}
+  }
 \end{proof}
 
 \bigskip
