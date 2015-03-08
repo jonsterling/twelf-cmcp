@@ -15,6 +15,7 @@
 \newtheorem{corollary}[theorem]{Corollary}
 \newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{case}{Case}
 \newdef{definition}[theorem]{Definition}
 \newdef{remark}[theorem]{Remark}
 \def\permission{}
@@ -935,14 +936,88 @@ framework.
 sets is admissible:
 \[
   \infer[\typi_E]{
-    \mem{\ap(M;N)}{B(M)}
+    \mem{\ap(M;N)}{B(N)}
   }{
-    \mem{M}{\typi(A;[x]B(x))} &
-    \mem{N}{A}
+    \begin{array}{c}
+      \mathcal{D}\\
+      \mem{M}{\thunk{\typi(A;B)}}\\
+    \end{array} &
+    \begin{array}{c}
+      \mathcal{E}\\
+      \mem{N}{A}
+    \end{array}
   }
 \]
 }
 \begin{proof}
+  By induction on the derivation $\mathcal{D}$, which must have the following canonical form:
+  \[
+     \infer[\mathcal{D}]{
+       \mem{M}{\thunk{\typi(A;B)}}
+     }{
+       \begin{array}{c}
+         \mathcal{D}' \\
+         \eval{M}{\lam E}
+       \end{array} &
+       \infer{
+         \canmem{\lam E}{\typi(A;B)}
+       }{
+         \infer{
+           \sequent{\cdot,A}{\qmem{\tacitbind{E}}{\tacitbind{B}}}
+         }{
+           \infer{
+             \lfpi{x,x'}{
+               \weaken{\cdot}{x}{x'}
+               \to\sequent{\cdot}{\qmem{x'}{A}}
+               \to\sequent{\cdot}{\qmem{\nobind{E(x)}}{\nobind{B(x)}}}
+             }
+           }{
+             \begin{array}{c}
+               \mathcal{D}''\\
+               \lfpi{x}{\mem{x}{A} \to \mem{E(x)}{B(x)}}
+             \end{array}
+           } &
+           \dots
+         }
+       }
+     }
+  \]
+
+  Admissibility follows from $\mathcal{D}'$, $\mathcal{D}''$, $\mathcal{E}$;
+  the derivation $\mathcal{D''}(N)(\mathcal{E})$ must have a canonical form as follows:
+  \[
+    \infer{
+      \mem{E(N)}{B(N)}
+    }{
+      \begin{array}{c}
+        \mathcal{F}\\
+        \eval{E(N)}{X}
+      \end{array} &
+      \begin{array}{c}
+        \mathcal{F}'\\
+        \eval{B(N)}{C}
+      \end{array} &
+      \begin{array}{c}
+        \mathcal{F}''\\
+        \canmem{X}{C}
+      \end{array}
+    }
+  \]
+  Whence we may construct the goal:
+  \[
+    \infer{
+      \mem{\ap(M;N)}{B(N)}
+    }{
+      \infer{
+        \eval{\ap(M;N)}{X}
+      }{
+        \infer[\mathcal{D}']{\eval{M}{\lam E}}{} &
+        \infer[\mathcal{F}]{\eval{E(N)}{X}}{}
+      }&
+      \infer[\mathcal{F}']{\eval{B(N)}{C}}{}&
+      \infer[\mathcal{F}'']{\canmem{X}{C}}{}&
+    }
+  \]
 \end{proof}
 
 \theorem{The two standard elimination rules for the disjoint union of a family of sets are admissible:
@@ -950,12 +1025,12 @@ sets is admissible:
   \infer[\tysg_{E_1}]{
     \mem{\fst(M)}{A}
   }{
-    \mem{M}{\tysg(A;[x]B(x))} &
+    \mem{M}{\thunk{\tysg(A;[x]B(x))}} &
   }\quad
   \infer[\tysg_{E_2}]{
     \mem{\snd(M)}{B(\fst(M))}
   }{
-    \mem{M}{\tysg(A;[x]B(x))} &
+    \mem{M}{\thunk{\tysg(A;[x]B(x))}} &
   }
 \]
 }
