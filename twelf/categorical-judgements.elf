@@ -1,12 +1,15 @@
 => : tm -> val -> type. %infix right 9 =>. %mode => +E -M.
 
 =>/↑ : ↑ M => M.
-=>/ap : ap (↑ lam E) N => E·N
+=>/ap : ap M N => E·N
+         <- M => lam E
          <- E N => E·N.
-=>/fst : fst ↑ pair E1 E2 => M
-          <- E1 => M.
-=>/snd : snd ↑ pair E1 E2 => N
-          <- E2 => N.
+=>/fst : fst M => M1'
+          <- M => pair M1 M2
+          <- M1 => M1'.
+=>/snd : snd M => M2'
+          <- M => pair M1 M2
+          <- M2 => M2'.
 
 %block tm-b : block {x:tm}.
 

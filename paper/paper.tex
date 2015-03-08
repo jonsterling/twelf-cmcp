@@ -216,21 +216,24 @@ Then, the language is accorded a simple big-step operational semantics via the
   }
   \quad
   \infer[\evalrule\ap]{
-    \eval{\ap(\thunk{\lam[x]E(x)};M)}{N}
+    \eval{\ap(L;M)}{N}
   }{
+    \eval{L}{\lam[x]E(x)} &
     \eval{E(M)}{N}
   }\\[6pt]
   %
   \infer[\evalrule\fst]{
-    \eval{\fst(\thunk{\pair(M;N)})}{M'}
+    \eval{\fst(M)}{M_1'}
   }{
-    \eval{M}{M'}
+    \eval{M}{\pair(M_1;M_2)} &
+    \eval{M_1}{M_1'}
   }
   \quad
   \infer[\evalrule\snd]{
-    \eval{\fst(\thunk{\pair(M;N)})}{N'}
+    \eval{\snd(M)}{M_2'}
   }{
-    \eval{N}{N'}
+    \eval{M}{\pair(M_1;M_2)} &
+    \eval{M_2}{M_2'}
   }
 \end{gather*}
 
@@ -862,12 +865,12 @@ These rules are adequately encoded in our system as follows:
     \sequent{\cdot,A}{\qisset{\tacitbind{B}}}
   }\quad
   \infer{
-    \canmem{\lam(E)}{\typi(A;B)}
+    \canmem{\lam E}{\typi(A;B)}
   }{
     \sequent{\cdot,A}{\qmem{\tacitbind{E}}{\tacitbind{B}}}
   }\quad
   \infer{
-    \eqcanmem{\lam(E)}{\lam(E')}{\typi(A;B)}
+    \eqcanmem{\lam E}{\lam E'}{\typi(A;B)}
   }{
     \sequent{\cdot,A}{\eqcanmem{\tacitbind{E}}{\tacitbind{E'}}{\tacitbind{B}}}
   }
