@@ -73,7 +73,7 @@
 \newcommand\sequent[2]{\InputMode{#1}\gg\InputMode{#2}}
 \newcommand\nece[1]{\gg\InputMode{#1}}
 
-%% Krary Stuff
+%% Crary Stuff
 \DeclareMathOperator\isvarop{\mathsf{isvar}}
 \DeclareMathOperator\boundedop{\mathsf{bounded}}
 \DeclareMathOperator\orderedop{\mathsf{ordered}}
@@ -99,7 +99,7 @@
   instance, the case in MLTT~1979, where non-trivial functionality obligations
   are incurred in the sequent judgement.
 
-  Another technique advanced by Krary is to represent contexts explicitly, and
+  Another technique advanced by Crary is to represent contexts explicitly, and
   then define a sequent judgement over them; this can be used to resolve the
   problem described above (and several others), but it comes at the cost of
   verbosity, and introduces difficulties when used to encode \emph{telescopes}
@@ -345,7 +345,7 @@ forms first, anticipating the explanations of the canonical forms judgements.
 Following Martin-L\"of, we give an extensional equality for all types (i.e.\
 two types are equal when they have the same membership and equivalence
 relations); we could choose an intensional/structural equality for types, but
-for our purposes here, it is not necessary.
+this question is orthogonal to the technique being demonstrated.
 
 \begin{gather*}
   \infer{
@@ -428,10 +428,10 @@ Martin-L\"of's definition of hypothetico-general judgement, which includes
 functionality from the start, allowing the other judgements to use this ``off
 the shelf''.
 
-\section{Explicit Contexts \`a la Krary}
+\section{Explicit Contexts \`a la Crary}
 In order to factor out functionality constraints, it will be necessary to
 consider the use of contexts in the encoding, and then recast the judgements
-above as being sequents, i.e.\ judgements with respect to a context. Krary's
+above as being sequents, i.e.\ judgements with respect to a context. Crary's
 first-order encoding of explicit contexts in the LF is essentially the
 following:
 
