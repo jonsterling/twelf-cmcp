@@ -92,6 +92,7 @@
 \author{JONATHAN M.\ STERLING}
 
 \begin{abstract}
+
   There are two standard techniques for representing dependently typed calculi
   in the LF. The first is to re-use the LF contexts for the object contexts,
   which can lead to difficulties when the meaning of hypothetico-general
@@ -120,15 +121,17 @@
 
 \section{Introduction}
 
-To motivate this work, let us consider an encoding of MLTT~1979 in the logical
-framework. The syntax contains two sorts, $\sortval$ (for canonical forms) and
-$\sortexp$ (for non-canonical forms), and is defined in the following LF
-signature: \footnote{LF signatures are presented in the style of inference
-  rules for clarity. Object judgement forms have a \emph{mode} which expresses
-  which arguments represent inputs, and which represent outputs; in our
-  presentation, we color the inputs \emph{\InputMode\InputModeColorName}, and
-  the outputs \emph{\OutputMode\OutputModeColorName}. Proper assignment of
-modes may be used to construe a judgement as having algorithmic content.}
+To motivate this work, let us consider an encoding of Martin-L\"of's
+extensional, polymorphic type theory (MLTT~1979) in the logical framework (see
+\cite{Martin-Lof-1979} for a full presentation). The syntax contains two sorts,
+$\sortval$ (for canonical forms) and $\sortexp$ (for non-canonical forms), and
+is defined in the following LF signature: \footnote{LF signatures are presented
+  in the style of inference rules for clarity. Object judgement forms have a
+  \emph{mode} which expresses which arguments represent inputs, and which
+  represent outputs; in our presentation, we color the inputs
+  \emph{\InputMode\InputModeColorName}, and the outputs
+  \emph{\OutputMode\OutputModeColorName}. Proper assignment of modes may be
+used to construe a judgement as having algorithmic content.}
 
 \begin{gather*}
   \infer{\sortval:\type}{}
@@ -817,6 +820,10 @@ machinery that we have built up so far:
     \end{array}
   }
 \end{gather*}
+
+\bibliographystyle{acmtrans}
+\nocite{*}
+\bibliography{paper}
 
 \end{document}
 
