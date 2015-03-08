@@ -929,6 +929,39 @@ definitions of the types. So, only after having propounded the definitions
 above may we entertain \emph{proving} the elimination rules in the logical
 framework.
 
+\subsection{Admissible Rules}
+
+\theorem{The standard application rule for the cartesian product of a family of
+sets is admissible:
+\[
+  \infer[\typi_E]{
+    \mem{\ap(M;N)}{B(M)}
+  }{
+    \mem{M}{\typi(A;[x]B(x))} &
+    \mem{N}{A}
+  }
+\]
+}
+\begin{proof}
+\end{proof}
+
+\theorem{The two standard elimination rules for the cartesian product of a family of sets are admissible:
+\[
+  \infer[\tysg_{E_1}]{
+    \mem{\fst(M)}{A}
+  }{
+    \mem{M}{\tysg(A;[x]B(x))} &
+  }\quad
+  \infer[\tysg_{E_2}]{
+    \mem{\snd(M)}{B(\fst(M))}
+  }{
+    \mem{M}{\tysg(A;[x]B(x))} &
+  }
+\]
+}
+\begin{proof}
+\end{proof}
+
 \bigskip
 
 \bibliographystyle{acmtrans}
