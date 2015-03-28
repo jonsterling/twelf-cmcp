@@ -19,3 +19,50 @@ sg/elim/1 : mem M (↑ sg A B) -> mem (fst M) A -> type.
 
 %worlds () (sg/elim/1 _ _).
 %total D (sg/elim/1 D _).
+
+pi/elim/ap : mem M (↑ pi A B) -> mem N A -> mem (ap M N) (B N) -> type.
+%mode pi/elim/ap +D1 +D2 -E.
+
+- : pi/elim/ap
+     (mem/def
+        (can-mem/lam
+           ([x][x∈A] mem/def (E'∈B' x) (B=>B' x) (E=>E' x))
+           _)
+        =>/↑
+        (M=>lam : M => lam E))
+     N∈A
+     (mem/def
+        (E'∈B' N)
+        (B=>B' N)
+        (=>/ap
+           (E=>E' N)
+           M=>lam)).
+
+%% this requires a separate case for when the proof of membership is
+%% got via hypothesis (in the previous case, the consistuents of the
+%% first premise use only the first hypothesis and ignore the
+%% second). TODO: figure out if this can be cleaned up / clarified.
+
+- : pi/elim/ap
+     (mem/def
+        (can-mem/lam
+           ([x] [x∈A] x∈A)
+           ([x] [y] [x=y∈A] x=y∈A))
+        =>/↑
+        (M=>lam : M => lam [x] x))
+     (mem/def
+        N'∈A'
+        (A=>A' : A => A')
+        (N=>N' : N => N')
+        : mem N A)
+     (mem/def
+        N'∈A'
+        A=>A'
+        (=>/ap
+           N=>N'
+           M=>lam
+           : ap M N => N')
+        : mem (ap M N) A).
+
+%worlds () (pi/elim/ap _ _ _).
+%total {} (pi/elim/ap _ _ _).
