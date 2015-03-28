@@ -527,7 +527,7 @@ but it is concerning in our case for a few reasons:
 
 \begin{enumerate}
 
-  \item The correctness of this encoding depends very strongly on its
+  \item The adequacy of this encoding depends very strongly on its
     \emph{use}: this only truly encodes contexts if in every case an LF-variable
     is used for $X$.  Moreover, the various well-formedness constraints are a
     bit inelegant, as is the concept of mapping LF variables to De Bruijn indices.
@@ -546,9 +546,10 @@ but it is concerning in our case for a few reasons:
 
 \section{Encoding Telescopes in Higher-Order Abstract Syntax}
 More precisely, it seems that what we really need is an encoding of
-\emph{telescopes}, in the sense of De Bruijn. A telescope is a
-sequence of type assignments, where variables bound earlier may appear free
-later; for instance:
+\emph{telescopes}, in the sense of De
+Bruijn\cite{Bruijn91telescopicmappings}. A telescope is a sequence of
+type assignments, where variables bound earlier may appear free later;
+for instance:
 \[
   \cdot,x_1:A_1, x_2:A_2(x_1), x_3:A_3(x_1,x_2), \dots, x_n:A_n(x_1,\dots,x_{n-1})
 \]
@@ -668,8 +669,7 @@ interpret them into proper object judgements (LF-types) later.
 The next thing to do is to specify how each of these judgement(-codes) behaves
 operationally (i.e. by substituting its outermost variable); we will do so by
 extending the LF signature with a new algorithmic judgement
-$\sploot{\dname{J}}{\dname{J}'}$ (``$\InputMode{\dname{J}}$ sploots into
-$\OutputMode{\dname{J}'}$'') and making it evident on all inputs:
+$\sploot{\dname{J}}{\dname{J}'}$ and making it evident on all inputs:
 
 \begin{gather*}
   \infer{
@@ -714,8 +714,7 @@ $\OutputMode{\dname{J}'}$'') and making it evident on all inputs:
 
 Next, we will do something similar in order to show how each of these
 judgement(-codes) behaves extensionally, by introducing another algorithmic
-judgement $\refract{\dname{J}}{\dname{J}^=}$ (``$\InputMode{\dname{J}}$
-refracts into $\OutputMode{\dname{J}^=}$''). Intuitively, this judgement
+judgement $\refract{\dname{J}}{\dname{J}^=}$. Intuitively, this judgement
 describes how what happens when you substitute two purportedly equal
 expressions in for the judgement-code's outermost variable.
 
@@ -759,6 +758,14 @@ expressions in for the judgement-code's outermost variable.
   }{
   }
 \end{gather*}
+
+The judgement $\sploot{\dname{J}}{\dname{J}'}$ may be considered as
+defining the behavior of $\dname{J}$ with one hole punched in it;
+$[x]\;\dname{J}(x)$ could be called the ``one-hole application of
+$\dname{J}$''. Likewise, $\refract{\dname{J}}{\dname{J}^=}$ may be
+thought of as defining the behavior $\dname{J}$ with two hole punched
+in it, and $[x][y]\; \dname{J}^=(x,y)$ could be called the ``two-hole
+application of $\dname{J}$''.
 
 \subsection{The Functional Sequent Judgement}
 
@@ -939,9 +946,14 @@ definitions of the types. So, only after having propounded the definitions
 above may we entertain \emph{justifying} the elimination rules in the logical
 framework.
 
-\subsection{Admissible Rules}
+\subsection{Validity of Elimination Rules}
 
-\theorem{The standard application rule for the cartesian product of a family of
+Here, we demonstrate the validity of the application rule for $\typi$
+sets; the validity of further elimination rules is left for future
+work.
+
+\begin{theorem}
+The standard application rule for the cartesian product of a family of
 sets is admissible:
 \[
   \infer[\typi_E]{
@@ -955,7 +967,8 @@ sets is admissible:
     }
   }
 \]
-}
+\end{theorem}
+
 \begin{proof}
   By induction on the derivation $\dname{D}$, which must have the following canonical form:
   \[
@@ -1022,6 +1035,29 @@ sets is admissible:
   }
 \end{proof}
 
+
+\section{Conclusion}
+
+A rich, higher-order encoding for telescopes addresses several issues
+which come up when encoding Martin-L\"of's extensional type theory
+into the LF.
+
+First, functionality premises no longer need be directly included in
+every rule which uses hypothetico-general judgement. These are
+factored out into a separate judgement which has a compositional
+definition (the functional sequent judgement). Because of this, the
+rules in the LF will look very much like how they did in
+Mpartin-L\"of's informal presentation.
+
+Secondly, the core judgements of type theory (i.e.\ typehood, equality
+of types, membership, and equality of members) are defined first in
+their atomic/categorical form, and then separately they are explained
+with respect to a telescope, both directly and extensionally. Unlike
+in Martin-L\"of's presentation, the sequent judgement is, then, not
+defined separately at each categorical judgement, but is rather
+explained once and for all in terms of the novel
+$\sploot{\dname{J}}{\dname{J}'}$ and
+$\refract{\dname{J}}{\dname{J}^=}$ judgements.
 
 \bigskip
 
