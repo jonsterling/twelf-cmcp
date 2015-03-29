@@ -133,16 +133,17 @@
 \section{Introduction}
 
 To motivate this work, let us consider an encoding of a fragment of
-Martin-L\"of's extensional, polymorphic type theory (MLTT~1979) in the logical
-framework (see \cite{Martin-Lof-1979} for a full presentation). The syntax
-contains two sorts, $\sortval$ (for canonical forms) and $\sortexp$ (for
-non-canonical forms), and is defined in the following LF signature:
-\footnote{LF signatures are presented in the style of inference rules for
-  clarity. Object judgement forms have a \emph{mode} which expresses which
-  arguments represent inputs, and which represent outputs; in our presentation,
-  we color the inputs \emph{\InputMode\InputModeColorName}, and the outputs
-  \emph{\OutputMode\OutputModeColorName}. Proper assignment of modes may be
-used to construe a judgement as having algorithmic content.}
+Martin-L\"of's extensional, polymorphic type
+theory\cite{Martin-Lof-1979} in the logical framework. The syntax
+contains two sorts, $\sortval$ (for canonical forms) and $\sortexp$
+(for non-canonical forms), and is defined in the following LF
+signature:\footnote{LF signatures are presented in the style of
+inference rules for clarity. Object judgement forms have a \emph{mode}
+which expresses which arguments represent inputs, and which represent
+outputs; in our presentation, we color the inputs
+\emph{\InputMode\InputModeColorName}, and the outputs
+\emph{\OutputMode\OutputModeColorName}. Proper assignment of modes may
+be used to construe a judgement as having algorithmic content.}
 
 \begin{gather*}
   \infer{\sortval:\type}{}
@@ -664,7 +665,7 @@ interpret them into proper object judgements (LF-types) later.
   }
 \end{gather*}
 
-\subsection{Sploosion and Refraction}
+\subsection{Extensionality}
 
 The next thing to do is to specify how each of these judgement(-codes) behaves
 operationally (i.e. by substituting its outermost variable); we will do so by
@@ -1047,7 +1048,7 @@ every rule which uses hypothetico-general judgement. These are
 factored out into a separate judgement which has a compositional
 definition (the functional sequent judgement). Because of this, the
 rules in the LF will look very much like how they did in
-Mpartin-L\"of's informal presentation.
+Martin-L\"of's informal presentation.
 
 Secondly, the core judgements of type theory (i.e.\ typehood, equality
 of types, membership, and equality of members) are defined first in
