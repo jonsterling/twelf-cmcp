@@ -115,7 +115,7 @@
   then define a sequent judgement over them; this can be used to resolve the
   problem described above (and several others), but it comes at the cost of
   verbosity, and introduces difficulties when used to encode \emph{telescopes}
-  in the LF, which are contexts where where each successive term has the
+  in the LF, which are contexts where each successive term has the
   previous bound variables free in it.  In this paper, I demonstrate a
   higher-order encoding of telescopes which can be used to faithfully encode
   the functional sequent judgement for MLTT~1979.
@@ -134,7 +134,7 @@
 
 To motivate this work, let us consider an encoding of a fragment of
 Martin-L\"of's extensional, polymorphic type
-theory\cite{Martin-Lof-1979} in the logical framework. The syntax
+theory \cite{Martin-Lof-1979} in the logical framework. The syntax
 contains two sorts, $\sortval$ (for canonical forms) and $\sortexp$
 (for non-canonical forms), and is defined in the following LF
 signature:\footnote{LF signatures are presented in the style of
@@ -548,7 +548,7 @@ but it is concerning in our case for a few reasons:
 \section{Encoding Telescopes in Higher-Order Abstract Syntax}
 More precisely, it seems that what we really need is an encoding of
 \emph{telescopes}, in the sense of De
-Bruijn\cite{Bruijn91telescopicmappings}. A telescope is a sequence of
+Bruijn \cite{Bruijn91telescopicmappings}. A telescope is a sequence of
 type assignments, where variables bound earlier may appear free later;
 for instance:
 \[
@@ -716,7 +716,7 @@ $\sploot{\dname{J}}{\dname{J}'}$ and making it evident on all inputs:
 Next, we will do something similar in order to show how each of these
 judgement(-codes) behaves extensionally, by introducing another algorithmic
 judgement $\refract{\dname{J}}{\dname{J}^=}$. Intuitively, this judgement
-describes how what happens when you substitute two purportedly equal
+describes what happens when you substitute two purportedly equal
 expressions in for the judgement-code's outermost variable.
 
 \begin{gather*}
@@ -760,13 +760,12 @@ expressions in for the judgement-code's outermost variable.
   }
 \end{gather*}
 
-The judgement $\sploot{\dname{J}}{\dname{J}'}$ may be considered as
-defining the behavior of $\dname{J}$ with one hole punched in it;
-$[x]\;\dname{J}(x)$ could be called the ``one-hole application of
-$\dname{J}$''. Likewise, $\refract{\dname{J}}{\dname{J}^=}$ may be
-thought of as defining the behavior $\dname{J}$ with two hole punched
-in it, and $[x][y]\; \dname{J}^=(x,y)$ could be called the ``two-hole
-application of $\dname{J}$''.
+The judgement $\sploot{\dname{J}}{\dname{J}'}$ may be considered as defining
+the behavior of $\dname{J}$ with one hole punched in it; $[x]\;\dname{J}(x)$
+could be called the ``one-hole application of $\dname{J}$''. Likewise,
+$\refract{\dname{J}}{\dname{J}^=}$ may be thought of as defining the behavior
+$\dname{J}$ with two holes punched in it, and $[x][y]\; \dname{J}^=(x,y)$ could
+be called the ``two-hole application of $\dname{J}$''.
 
 \subsection{The Functional Sequent Judgement}
 
